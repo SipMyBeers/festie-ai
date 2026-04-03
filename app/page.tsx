@@ -9,7 +9,7 @@ const Scene = dynamic(() => import("@/components/3d/Scene").then((m) => m.Scene)
 
 export default function Home() {
   return (
-    <main className="h-screen w-screen overflow-hidden">
+    <main className="h-screen w-screen">
       <LoadingScreen />
       <Scene />
     </main>

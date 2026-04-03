@@ -1,11 +1,12 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Preload, Stars } from "@react-three/drei";
+import { Preload, Stars, ScrollControls, Scroll } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Suspense, useEffect } from "react";
 import { useFestieStore } from "@/lib/store";
 import { HeroRave } from "./HeroRave";
+import { ScrollCamera } from "./ScrollCamera";
 
 function SceneContent() {
   const setAssetsLoaded = useFestieStore((s) => s.setAssetsLoaded);
@@ -25,20 +26,30 @@ function SceneContent() {
   }, [setAssetsLoaded, setLoadingProgress]);
 
   return (
-    <>
-      <ambientLight intensity={0.05} />
-      <HeroRave />
-      <Stars radius={100} depth={50} count={2000} factor={4} fade speed={1} />
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.6}
-          luminanceSmoothing={0.9}
-          intensity={1.5}
-          mipmapBlur
+    <ScrollControls pages={4} damping={0.25}>
+      <ScrollCamera />
+      <Scroll>
+        <ambientLight intensity={0.05} />
+        <HeroRave />
+        <Stars
+          radius={100}
+          depth={50}
+          count={2000}
+          factor={4}
+          fade
+          speed={1}
         />
-      </EffectComposer>
+        <EffectComposer>
+          <Bloom
+            luminanceThreshold={0.6}
+            luminanceSmoothing={0.9}
+            intensity={1.5}
+            mipmapBlur
+          />
+        </EffectComposer>
+      </Scroll>
       <Preload all />
-    </>
+    </ScrollControls>
   );
 }
 
