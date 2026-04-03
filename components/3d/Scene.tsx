@@ -6,6 +6,7 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Suspense, useEffect } from "react";
 import { useFestieStore } from "@/lib/store";
 import { HeroRave } from "./HeroRave";
+import { SolarSystem } from "./SolarSystem";
 import { ScrollCamera } from "./ScrollCamera";
 
 function SceneContent() {
@@ -31,19 +32,20 @@ function SceneContent() {
       <Scroll>
         <ambientLight intensity={0.05} />
         <HeroRave />
+        <SolarSystem />
         <Stars
-          radius={100}
-          depth={50}
-          count={2000}
+          radius={200}
+          depth={100}
+          count={3000}
           factor={4}
           fade
-          speed={1}
+          speed={0.5}
         />
         <EffectComposer>
           <Bloom
-            luminanceThreshold={0.6}
+            luminanceThreshold={0.5}
             luminanceSmoothing={0.9}
-            intensity={1.5}
+            intensity={1.2}
             mipmapBlur
           />
         </EffectComposer>
