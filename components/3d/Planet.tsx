@@ -72,10 +72,9 @@ export function Planet({
   }, [setHoveredPlanet]);
 
   const handleClick = useCallback(() => {
-    if (festival.comingSoon) return;
     setSelectedPlanet(festival.slug);
     setCameraMode("flying-in");
-  }, [festival.comingSoon, festival.slug, setSelectedPlanet, setCameraMode]);
+  }, [festival.slug, setSelectedPlanet, setCameraMode]);
 
   return (
     <group ref={groupRef}>
