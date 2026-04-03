@@ -20,6 +20,8 @@ interface FestieStore {
   setAssetsLoaded: (loaded: boolean) => void;
   loadingProgress: number;
   setLoadingProgress: (progress: number) => void;
+  planetPositions: Record<string, [number, number, number]>;
+  setPlanetPosition: (slug: string, pos: [number, number, number]) => void;
 }
 
 export const useFestieStore = create<FestieStore>((set) => ({
@@ -41,4 +43,9 @@ export const useFestieStore = create<FestieStore>((set) => ({
   setAssetsLoaded: (loaded) => set({ assetsLoaded: loaded }),
   loadingProgress: 0,
   setLoadingProgress: (progress) => set({ loadingProgress: progress }),
+  planetPositions: {},
+  setPlanetPosition: (slug, pos) =>
+    set((state) => ({
+      planetPositions: { ...state.planetPositions, [slug]: pos },
+    })),
 }));

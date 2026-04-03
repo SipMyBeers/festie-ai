@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Billboard, Text, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { Festival } from "@/lib/types";
 import { useFestieStore } from "@/lib/store";
@@ -26,9 +26,15 @@ export function Planet({
   const [hovered, setHovered] = useState(false);
   const hoveredPlanet = useFestieStore((s) => s.hoveredPlanetSlug);
   const setHoveredPlanet = useFestieStore((s) => s.setHoveredPlanet);
+  const setSelectedPlanet = useFestieStore((s) => s.setSelectedPlanet);
+  const setCameraMode = useFestieStore((s) => s.setCameraMode);
+  const setPlanetPosition = useFestieStore((s) => s.setPlanetPosition);
 
   const size = (festival.popularityScore / 100) * 1.5 + 0.5;
   const isLive = festival.status === "live";
+
+  // Track last reported position to avoid spamming store updates
+  const lastReportedPos = useRef<[number, number, number]>([0, 0, 0]);
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -40,24 +46,36 @@ export function Planet({
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.002;
     }
+
+    // Update planet position in store (throttled — only when moved significantly)
+    const pos = groupRef.current.position;
+    const dx = pos.x - lastReportedPos.current[0];
+    const dy = pos.y - lastReportedPos.current[1];
+    const dz = pos.z - lastReportedPos.current[2];
+    if (dx * dx + dy * dy + dz * dz > 0.01) {
+      const newPos: [number, number, number] = [pos.x, pos.y, pos.z];
+      lastReportedPos.current = newPos;
+      setPlanetPosition(festival.slug, newPos);
+    }
   });
 
-  const handlePointerEnter = () => {
+  const handlePointerEnter = useCallback(() => {
     setHovered(true);
     setHoveredPlanet(festival.slug);
     document.body.style.cursor = "pointer";
-  };
+  }, [festival.slug, setHoveredPlanet]);
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = useCallback(() => {
     setHovered(false);
     setHoveredPlanet(null);
     document.body.style.cursor = "default";
-  };
+  }, [setHoveredPlanet]);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (festival.comingSoon) return;
-    window.location.href = `/planet/${festival.slug}`;
-  };
+    setSelectedPlanet(festival.slug);
+    setCameraMode("flying-in");
+  }, [festival.comingSoon, festival.slug, setSelectedPlanet, setCameraMode]);
 
   return (
     <group ref={groupRef}>
@@ -89,16 +107,39 @@ export function Planet({
 
       {isLive && <LiveRings size={size} color={festival.planetColor} />}
 
+      {/* Always-visible planet label */}
+      <Billboard follow lockX={false} lockY={false} lockZ={false}>
+        <Text
+          position={[0, -size - 0.5, 0]}
+          fontSize={0.35}
+          color="white"
+          anchorX="center"
+          anchorY="top"
+          fillOpacity={festival.comingSoon ? 0.4 : 0.85}
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          {festival.name}
+        </Text>
+      </Billboard>
+
       {festival.comingSoon && (
-        <Html center position={[0, size + 0.3, 0]} distanceFactor={15}>
-          <div className="text-white/50 text-xs font-display whitespace-nowrap">
+        <Billboard follow lockX={false} lockY={false} lockZ={false}>
+          <Text
+            position={[0, size + 0.3, 0]}
+            fontSize={0.2}
+            color="white"
+            anchorX="center"
+            anchorY="bottom"
+            fillOpacity={0.4}
+          >
             Coming Soon
-          </div>
-        </Html>
+          </Text>
+        </Billboard>
       )}
 
       {hoveredPlanet === festival.slug && (
-        <Html center position={[0, -size - 0.5, 0]} distanceFactor={15}>
+        <Html center position={[0, -size - 1.2, 0]} distanceFactor={15}>
           <div className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 min-w-[200px] pointer-events-none">
             <div className="flex items-center gap-2">
               <h3 className="text-white font-display font-bold text-sm">
@@ -126,6 +167,9 @@ export function Planet({
                 </span>
               ))}
             </div>
+            {!festival.comingSoon && (
+              <p className="text-white/30 text-[10px] mt-2">Click to explore</p>
+            )}
           </div>
         </Html>
       )}

@@ -8,6 +8,27 @@ import { useFestieStore } from "@/lib/store";
 import { HeroRave } from "./HeroRave";
 import { SolarSystem } from "./SolarSystem";
 import { ScrollCamera } from "./ScrollCamera";
+import { PlanetSurface } from "./PlanetSurface";
+import { getFestivalBySlug } from "@/lib/data/festivals";
+
+function ActivePlanetSurface() {
+  const selectedSlug = useFestieStore((s) => s.selectedPlanetSlug);
+  const cameraMode = useFestieStore((s) => s.cameraMode);
+  const planetPositions = useFestieStore((s) => s.planetPositions);
+
+  if (!selectedSlug || cameraMode === "hero" || cameraMode === "solar-system")
+    return null;
+
+  const festival = getFestivalBySlug(selectedSlug);
+  const pos = planetPositions[selectedSlug];
+  if (!festival || !pos) return null;
+
+  return (
+    <group position={pos}>
+      <PlanetSurface festival={festival} />
+    </group>
+  );
+}
 
 function SceneContent() {
   const setAssetsLoaded = useFestieStore((s) => s.setAssetsLoaded);
@@ -33,6 +54,7 @@ function SceneContent() {
         <ambientLight intensity={0.05} />
         <HeroRave />
         <SolarSystem />
+        <ActivePlanetSurface />
         <Stars
           radius={200}
           depth={100}
