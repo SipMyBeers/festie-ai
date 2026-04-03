@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Preload, Stars, ScrollControls } from "@react-three/drei";
+import { Preload, Stars } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Suspense, useEffect } from "react";
 import { useFestieStore } from "@/lib/store";
@@ -48,10 +48,8 @@ function SceneContent() {
   }, [setAssetsLoaded, setLoadingProgress]);
 
   return (
-    <ScrollControls pages={4} damping={0.25}>
+    <>
       <ScrollCamera />
-      {/* Scene content lives OUTSIDE <Scroll> so 3D positions stay correct for raycasting.
-          ScrollCamera handles all camera movement based on scroll offset. */}
       <ambientLight intensity={0.05} />
       <HeroRave />
       <SolarSystem />
@@ -73,7 +71,7 @@ function SceneContent() {
         />
       </EffectComposer>
       <Preload all />
-    </ScrollControls>
+    </>
   );
 }
 
