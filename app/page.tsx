@@ -1,9 +1,17 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+const Scene = dynamic(() => import("@/components/3d/Scene").then((m) => m.Scene), {
+  ssr: false,
+});
+
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center">
-      <h1 className="text-6xl font-display font-bold bg-gradient-to-r from-festie-purple via-festie-pink to-festie-cyan bg-clip-text text-transparent">
-        FESTIE.AI
-      </h1>
+    <main className="h-screen w-screen overflow-hidden">
+      <LoadingScreen />
+      <Scene />
     </main>
   );
 }
