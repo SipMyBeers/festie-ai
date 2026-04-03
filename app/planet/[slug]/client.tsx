@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Festival } from "@/lib/types";
+import { Timeline } from "@/components/ui/Timeline";
+import { StagePanel } from "@/components/ui/StagePanel";
 
 const PlanetScene = dynamic(
   () => import("@/components/3d/PlanetScene").then((m) => m.PlanetScene),
@@ -42,6 +44,9 @@ export function PlanetPageClient({ festival }: { festival: Festival }) {
           Buy Tickets
         </a>
       </div>
+
+      <StagePanel festival={festival} />
+      <Timeline festival={festival} />
     </main>
   );
 }
