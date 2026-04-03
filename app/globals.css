@@ -22,3 +22,26 @@ body {
 canvas {
   touch-action: none;
 }
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  .fixed {
+    -webkit-transform: translateZ(0);
+  }
+}
+
+/* Smooth scrollbar hiding for timeline */
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+.overflow-x-auto {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area padding for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

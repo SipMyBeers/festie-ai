@@ -1,11 +1,19 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Text, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { Lasers } from "./effects/Lasers";
 import { Particles } from "./effects/Particles";
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+  return isMobile;
+}
 
 function RaveStage() {
   const ledRef = useRef<THREE.Mesh>(null);
@@ -121,39 +129,28 @@ function CrowdPerson({
 }
 
 export function HeroRave() {
+  const isMobile = useIsMobile();
+  const particleCount = isMobile ? 100 : 300;
+  const crowdCount = isMobile ? 30 : 60;
+
   return (
     <group>
-      {/* Ground plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[30, 30]} />
         <meshStandardMaterial color="#0a0a0f" />
       </mesh>
 
       <RaveStage />
-      <CrowdSprites count={60} />
-      <Lasers origin={[0, 5, -8]} count={12} spread={6} color="#7c3aed" />
-      <Lasers origin={[0, 5, -8]} count={8} spread={5} color="#ec4899" />
-      <Particles count={300} area={[15, 8, 15]} color="#ec4899" size={0.02} speed={0.2} />
-      <Particles count={100} area={[15, 8, 15]} color="#7c3aed" size={0.04} speed={0.1} />
+      <CrowdSprites count={crowdCount} />
+      <Lasers origin={[0, 5, -8]} count={isMobile ? 6 : 12} spread={6} color="#7c3aed" />
+      <Lasers origin={[0, 5, -8]} count={isMobile ? 4 : 8} spread={5} color="#ec4899" />
+      <Particles count={particleCount} area={[15, 8, 15]} color="#ec4899" size={0.02} speed={0.2} />
+      <Particles count={isMobile ? 50 : 100} area={[15, 8, 15]} color="#7c3aed" size={0.04} speed={0.1} />
 
-      {/* Fog */}
       <fog attach="fog" args={["#0a0a0f", 5, 25]} />
 
-      {/* Stage spotlights */}
-      <spotLight
-        position={[-4, 8, -6]}
-        angle={0.4}
-        penumbra={0.5}
-        intensity={3}
-        color="#7c3aed"
-      />
-      <spotLight
-        position={[4, 8, -6]}
-        angle={0.4}
-        penumbra={0.5}
-        intensity={3}
-        color="#ec4899"
-      />
+      <spotLight position={[-4, 8, -6]} angle={0.4} penumbra={0.5} intensity={3} color="#7c3aed" />
+      <spotLight position={[4, 8, -6]} angle={0.4} penumbra={0.5} intensity={3} color="#ec4899" />
     </group>
   );
 }
