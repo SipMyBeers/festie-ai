@@ -1,0 +1,47 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { Festival } from "@/lib/types";
+
+const PlanetScene = dynamic(
+  () => import("@/components/3d/PlanetScene").then((m) => m.PlanetScene),
+  { ssr: false }
+);
+
+export function PlanetPageClient({ festival }: { festival: Festival }) {
+  return (
+    <main className="h-screen w-screen relative">
+      <PlanetScene festival={festival} />
+
+      {/* Top nav bar */}
+      <div className="fixed top-0 left-0 right-0 z-10 p-4 flex items-center justify-between pointer-events-none">
+        <Link
+          href="/"
+          className="text-white/60 hover:text-white text-sm font-display flex items-center gap-2 transition-colors pointer-events-auto"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Universe
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <h1 className="text-white font-display font-bold text-lg">{festival.name}</h1>
+          {festival.status === "live" && (
+            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">LIVE</span>
+          )}
+        </div>
+
+        <a
+          href={festival.ticketUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gradient-to-r from-festie-purple to-festie-pink text-white text-sm font-display font-bold px-4 py-2 rounded-full hover:opacity-90 transition-opacity pointer-events-auto"
+        >
+          Buy Tickets
+        </a>
+      </div>
+    </main>
+  );
+}
