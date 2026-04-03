@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-festie-dark: #0a0a0f;
+  --color-festie-purple: #7c3aed;
+  --color-festie-pink: #ec4899;
+  --color-festie-cyan: #06b6d4;
+  --color-festie-orange: #f97316;
+  --color-festie-gold: #eab308;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+canvas {
+  touch-action: none;
+}
