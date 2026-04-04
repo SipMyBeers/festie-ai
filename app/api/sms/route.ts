@@ -1,5 +1,8 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { generateOllamaResponse } from "@/lib/sms/ollama";
 import { generateResponse } from "@/lib/sms/responder";
+
+const USE_OLLAMA = process.env.OLLAMA_URL ? true : false;
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,27 +11,33 @@ export async function POST(request: NextRequest) {
     const fromNumber = formData.get("From") as string;
 
     if (!incomingMessage || !fromNumber) {
-      return new Response("Missing required fields", { status: 400 });
+      return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    const responseText = generateResponse(incomingMessage);
+    let responseText: string;
 
-    // Respond with TwiML
+    if (USE_OLLAMA) {
+      // TODO: Load conversation history from Supabase for this phone number
+      responseText = await generateOllamaResponse(incomingMessage, []);
+    } else {
+      responseText = generateResponse(incomingMessage);
+    }
+
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Message>${escapeXml(responseText)}</Message>
 </Response>`;
 
-    return new Response(twiml, {
+    return new NextResponse(twiml, {
       headers: { "Content-Type": "text/xml" },
     });
   } catch (error) {
     console.error("SMS webhook error:", error);
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Message>Oops! Something went wrong. Text HELP to try again.</Message>
+  <Message>Oops! Something went wrong. Try again in a sec!</Message>
 </Response>`;
-    return new Response(twiml, {
+    return new NextResponse(twiml, {
       headers: { "Content-Type": "text/xml" },
     });
   }
