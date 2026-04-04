@@ -29,30 +29,44 @@ export function Planet({
   const setSelectedPlanet = useFestieStore((s) => s.setSelectedPlanet);
   const setCameraMode = useFestieStore((s) => s.setCameraMode);
   const setPlanetPosition = useFestieStore((s) => s.setPlanetPosition);
+  const selectedPlanetSlug = useFestieStore((s) => s.selectedPlanetSlug);
 
   const size = (festival.popularityScore / 100) * 1.5 + 0.5;
   const isLive = festival.status === "live";
+  const isSelected = selectedPlanetSlug === festival.slug;
 
   // Track last reported position to avoid spamming store updates
   const lastReportedPos = useRef<[number, number, number]>([0, 0, 0]);
+  // Freeze angle when selected so planet stops orbiting
+  const frozenAngle = useRef<number | null>(null);
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
-    const angle = startAngle + clock.elapsedTime * orbitSpeed;
+
+    // Stop orbiting when this planet is selected (prevents shaking)
+    if (isSelected) {
+      if (frozenAngle.current === null) {
+        frozenAngle.current = startAngle + clock.elapsedTime * orbitSpeed;
+      }
+    } else {
+      frozenAngle.current = null;
+    }
+
+    const angle = frozenAngle.current ?? (startAngle + clock.elapsedTime * orbitSpeed);
     groupRef.current.position.x = Math.cos(angle) * orbitRadius;
     groupRef.current.position.z = Math.sin(angle) * orbitRadius;
-    groupRef.current.position.y = Math.sin(angle * 2) * orbitRadius * 0.05;
+    groupRef.current.position.y = isSelected ? 0 : Math.sin(angle * 2) * orbitRadius * 0.05;
 
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.002;
     }
 
-    // Update planet position in store (throttled — only when moved significantly)
+    // Update planet position in store
     const pos = groupRef.current.position;
     const dx = pos.x - lastReportedPos.current[0];
     const dy = pos.y - lastReportedPos.current[1];
     const dz = pos.z - lastReportedPos.current[2];
-    if (dx * dx + dy * dy + dz * dz > 0.01) {
+    if (dx * dx + dy * dy + dz * dz > 0.001) {
       const newPos: [number, number, number] = [pos.x, pos.y, pos.z];
       lastReportedPos.current = newPos;
       setPlanetPosition(festival.slug, newPos);

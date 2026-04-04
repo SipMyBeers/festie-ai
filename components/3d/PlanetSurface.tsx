@@ -89,30 +89,32 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 }
 
 function WanderingCrowd() {
-  const positions = useMemo(() => {
-    const arr = new Float32Array(120 * 3);
-    for (let i = 0; i < 120; i++) {
-      // Scatter people across the festival grounds
-      arr[i * 3] = (Math.random() - 0.5) * 16;
-      arr[i * 3 + 1] = 0.15 + Math.random() * 0.3;
-      arr[i * 3 + 2] = (Math.random() - 0.5) * 12;
-    }
-    return arr;
+  const people = useMemo(() => {
+    return Array.from({ length: 40 }, () => ({
+      x: (Math.random() - 0.5) * 14,
+      z: (Math.random() - 0.5) * 10,
+      height: 0.35 + Math.random() * 0.2,
+      shade: Math.random(),
+    }));
   }, []);
 
+  const bodyColors = ["#2a2a3a", "#3a3a4a", "#4a3a3a", "#3a4a4a", "#4a4a5a"];
+
   return (
-    <points>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial
-        color="#ffcc88"
-        size={0.12}
-        transparent
-        opacity={0.7}
-        sizeAttenuation
-      />
-    </points>
+    <group>
+      {people.map((p, i) => (
+        <group key={i} position={[p.x, 0, p.z]}>
+          <mesh position={[0, p.height * 0.5, 0]}>
+            <capsuleGeometry args={[0.05, p.height, 4, 8]} />
+            <meshStandardMaterial color={bodyColors[i % bodyColors.length]} roughness={0.9} />
+          </mesh>
+          <mesh position={[0, p.height + 0.08, 0]}>
+            <sphereGeometry args={[0.06, 6, 6]} />
+            <meshStandardMaterial color="#ddb89a" roughness={0.8} />
+          </mesh>
+        </group>
+      ))}
+    </group>
   );
 }
 

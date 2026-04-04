@@ -2,10 +2,14 @@
 
 import { useMemo } from "react";
 import { festivals } from "@/lib/data/festivals";
+import { useFestieStore } from "@/lib/store";
 import { Sun } from "./Sun";
 import { Planet } from "./Planet";
 
 export function SolarSystem() {
+  const cameraMode = useFestieStore((s) => s.cameraMode);
+  const selectedPlanetSlug = useFestieStore((s) => s.selectedPlanetSlug);
+
   const planetConfigs = useMemo(() => {
     const sorted = [...festivals].sort(
       (a, b) => b.popularityScore - a.popularityScore
@@ -18,28 +22,36 @@ export function SolarSystem() {
     }));
   }, []);
 
+  const isOnPlanet = cameraMode === "planet-surface" || cameraMode === "flying-in";
+
   return (
     <group position={[0, 0, 0]}>
-      <Sun />
+      {/* Hide sun when on a planet */}
+      {!isOnPlanet && <Sun />}
 
-      {planetConfigs.map(({ orbitRadius }, i) => (
-        <mesh key={i} rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry
-            args={[orbitRadius - 0.02, orbitRadius + 0.02, 128]}
-          />
-          <meshBasicMaterial
-            color="#ffffff"
-            transparent
-            opacity={0.04}
-            depthWrite={false}
-            side={2}
-          />
-        </mesh>
-      ))}
+      {/* Hide orbit rings when on a planet */}
+      {!isOnPlanet &&
+        planetConfigs.map(({ orbitRadius }, i) => (
+          <mesh key={i} rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[orbitRadius - 0.02, orbitRadius + 0.02, 128]} />
+            <meshBasicMaterial
+              color="#ffffff"
+              transparent
+              opacity={0.04}
+              depthWrite={false}
+              side={2}
+            />
+          </mesh>
+        ))}
 
-      {planetConfigs.map((config) => (
-        <Planet key={config.festival.id} {...config} />
-      ))}
+      {/* When on a planet, only render the selected planet */}
+      {isOnPlanet
+        ? planetConfigs
+            .filter((c) => c.festival.slug === selectedPlanetSlug)
+            .map((config) => <Planet key={config.festival.id} {...config} />)
+        : planetConfigs.map((config) => (
+            <Planet key={config.festival.id} {...config} />
+          ))}
     </group>
   );
 }
