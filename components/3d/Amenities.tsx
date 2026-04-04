@@ -1,305 +1,199 @@
 "use client";
 
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
 import * as THREE from "three";
+import { Html } from "@react-three/drei";
 
-// All amenity positions laid out around the festival grounds
-// Stages are at: Mainstage(0,-14), Outdoor(-14,-4), Sahara(18,0), Gobi(10,12), Mojave(-10,12)
+function Label({ text, color, y = 1.2 }: { text: string; color: string; y?: number }) {
+  return (
+    <Html center position={[0, y, 0]} distanceFactor={20}>
+      <div className="text-xs font-bold whitespace-nowrap px-1.5 py-0.5 rounded bg-black/60" style={{ color, fontFamily: "var(--font-display)" }}>
+        {text}
+      </div>
+    </Html>
+  );
+}
 
-// ---- WATER STATIONS ----
-function WaterStation({ position, name }: { position: [number, number, number]; name: string }) {
+function WaterStation({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      {/* Blue water tank */}
       <mesh position={[0, 0.4, 0]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.8, 8]} />
+        <cylinderGeometry args={[0.3, 0.3, 0.8, 6]} />
         <meshStandardMaterial color="#3b82f6" roughness={0.6} />
       </mesh>
-      {/* Spout */}
-      <mesh position={[0.3, 0.3, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.3, 6]} />
-        <meshStandardMaterial color="#888" metalness={0.7} />
-      </mesh>
-      {/* Label */}
-      <Text position={[0, 1.1, 0]} fontSize={0.2} color="#3b82f6" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        {name}
-      </Text>
-      {/* Blue glow on ground */}
-      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.6, 16]} />
-        <meshBasicMaterial color="#3b82f6" transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} />
-      </mesh>
+      <Label text="Water" color="#60a5fa" />
     </group>
   );
 }
 
-// ---- RESTROOMS ----
-function Restroom({ position, name, type }: { position: [number, number, number]; name: string; type: string }) {
-  const isFlush = type.includes("flush");
+function Restroom({ position, type }: { position: [number, number, number]; type: string }) {
   return (
     <group position={position}>
-      {/* Porta potty row or building */}
-      {isFlush ? (
-        // Flush restroom building
-        <mesh position={[0, 0.6, 0]}>
-          <boxGeometry args={[1.2, 1.2, 0.8]} />
+      {type.includes("flush") ? (
+        <mesh position={[0, 0.5, 0]}>
+          <boxGeometry args={[1, 1, 0.7]} />
           <meshStandardMaterial color="#666" roughness={0.8} />
         </mesh>
       ) : (
-        // Row of porta potties
         <>
-          {[-0.4, 0, 0.4].map((x) => (
-            <mesh key={x} position={[x, 0.5, 0]}>
-              <boxGeometry args={[0.3, 1, 0.3]} />
+          {[-0.35, 0, 0.35].map((x) => (
+            <mesh key={x} position={[x, 0.45, 0]}>
+              <boxGeometry args={[0.28, 0.9, 0.28]} />
               <meshStandardMaterial color="#22c55e" roughness={0.7} />
             </mesh>
           ))}
         </>
       )}
-      {/* Label */}
-      <Text position={[0, 1.5, 0]} fontSize={0.18} color="#22c55e" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        {name}
-      </Text>
+      <Label text="Restrooms" color="#4ade80" y={1.3} />
     </group>
   );
 }
 
-// ---- PARKING LOT ----
 function ParkingLot({ position, name }: { position: [number, number, number]; name: string }) {
   return (
     <group position={position}>
-      {/* Parking surface */}
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 3]} />
+      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3.5, 2.5]} />
         <meshStandardMaterial color="#333" roughness={0.95} />
       </mesh>
-      {/* Parking lines */}
-      {[-1.2, -0.4, 0.4, 1.2].map((x) => (
-        <mesh key={x} position={[x, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.05, 2.5]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
+      {[[-0.8, 0.15, -0.3], [0, 0.15, -0.3], [0.8, 0.15, -0.3], [-0.8, 0.15, 0.4], [0.8, 0.15, 0.4]].map((pos, i) => (
+        <mesh key={i} position={pos as [number, number, number]}>
+          <boxGeometry args={[0.45, 0.2, 0.25]} />
+          <meshStandardMaterial color={["#ef4444", "#3b82f6", "#fff", "#111", "#f59e0b"][i]} roughness={0.5} />
         </mesh>
       ))}
-      {/* Cars (simple colored boxes) */}
-      {[
-        [-0.8, 0.15, -0.5], [0, 0.15, -0.5], [0.8, 0.15, -0.5],
-        [-0.8, 0.15, 0.5], [0.8, 0.15, 0.5],
-      ].map((pos, i) => {
-        const colors = ["#ef4444", "#3b82f6", "#ffffff", "#1a1a1a", "#f59e0b"];
-        return (
-          <mesh key={i} position={pos as [number, number, number]}>
-            <boxGeometry args={[0.5, 0.25, 0.3]} />
-            <meshStandardMaterial color={colors[i]} roughness={0.6} />
-          </mesh>
-        );
-      })}
-      {/* Label */}
-      <Text position={[0, 1, 0]} fontSize={0.25} color="#f59e0b" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        {name}
-      </Text>
+      <Label text={name} color="#fbbf24" />
     </group>
   );
 }
 
-// ---- MEDICAL TENT ----
 function MedicalTent({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      {/* White tent */}
-      <mesh position={[0, 0.6, 0]}>
-        <boxGeometry args={[1.2, 1.2, 1]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.7} />
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[1, 1, 0.8]} />
+        <meshStandardMaterial color="#fff" roughness={0.7} />
       </mesh>
-      {/* Red cross */}
-      <mesh position={[0, 0.6, 0.51]}>
-        <planeGeometry args={[0.3, 0.8]} />
+      <mesh position={[0, 0.5, 0.41]}>
+        <planeGeometry args={[0.25, 0.7]} />
         <meshBasicMaterial color="#ef4444" />
       </mesh>
-      <mesh position={[0, 0.6, 0.51]}>
-        <planeGeometry args={[0.8, 0.3]} />
+      <mesh position={[0, 0.5, 0.41]}>
+        <planeGeometry args={[0.7, 0.25]} />
         <meshBasicMaterial color="#ef4444" />
       </mesh>
-      {/* Label */}
-      <Text position={[0, 1.5, 0]} fontSize={0.2} color="#ef4444" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        Medical
-      </Text>
-      {/* Red glow */}
-      {/* removed pointLight for perf */}
+      <Label text="Medical" color="#f87171" y={1.3} />
     </group>
   );
 }
 
-// ---- CHARGING LOCKERS ----
 function ChargingLockers({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      {/* Bank of lockers */}
-      {[-0.3, 0, 0.3].map((x) => (
-        <mesh key={x} position={[x, 0.5, 0]}>
-          <boxGeometry args={[0.25, 1, 0.3]} />
-          <meshStandardMaterial color="#6b7280" metalness={0.6} roughness={0.4} />
+      {[-0.25, 0, 0.25].map((x) => (
+        <mesh key={x} position={[x, 0.45, 0]}>
+          <boxGeometry args={[0.2, 0.9, 0.25]} />
+          <meshStandardMaterial color="#6b7280" metalness={0.5} roughness={0.4} />
         </mesh>
       ))}
-      {/* Charging indicator lights */}
-      {[-0.3, 0, 0.3].map((x) => (
-        <mesh key={x} position={[x, 0.9, 0.16]}>
-          <sphereGeometry args={[0.03, 6, 6]} />
-          <meshBasicMaterial color="#22c55e" />
-        </mesh>
-      ))}
-      {/* Label */}
-      <Text position={[0, 1.3, 0]} fontSize={0.18} color="#a855f7" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        Charging Lockers
-      </Text>
+      <Label text="Charging" color="#c084fc" y={1.2} />
     </group>
   );
 }
 
-// ---- MERCH TENT ----
 function MerchTent({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      {/* Tent structure */}
-      <mesh position={[0, 0.7, 0]}>
-        <boxGeometry args={[2, 1.4, 1.2]} />
+      <mesh position={[0, 0.6, 0]}>
+        <boxGeometry args={[1.8, 1.2, 1]} />
         <meshStandardMaterial color="#1a1a2e" roughness={0.7} />
       </mesh>
-      {/* Awning */}
-      <mesh position={[0, 1.5, 0.3]}>
-        <boxGeometry args={[2.4, 0.1, 1.6]} />
+      <mesh position={[0, 1.3, 0.2]}>
+        <boxGeometry args={[2, 0.08, 1.3]} />
         <meshStandardMaterial color="#f97316" />
       </mesh>
-      {/* "MERCH" sign */}
-      <Text position={[0, 1.8, 0.3]} fontSize={0.3} color="#f97316" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.02} outlineColor="#000">
-        MERCH
-      </Text>
-      {/* removed pointLight for perf */}
+      <Label text="MERCH" color="#fb923c" y={1.6} />
     </group>
   );
 }
 
-// ---- CAMPING AREA ----
 function CampingArea({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      {/* Ground area */}
       <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[3, 16]} />
+        <circleGeometry args={[2.5, 12]} />
         <meshStandardMaterial color="#8a7a5a" roughness={0.95} />
       </mesh>
-      {/* Tents */}
-      {[
-        [-1, 0, -0.5], [0.5, 0, -1], [-0.5, 0, 1], [1.2, 0, 0.5], [-1.5, 0, 0.8],
-      ].map((pos, i) => {
-        const colors = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#a855f7"];
-        return (
-          <mesh key={i} position={pos as [number, number, number]}>
-            <coneGeometry args={[0.3, 0.4, 4]} />
-            <meshStandardMaterial color={colors[i]} roughness={0.7} />
-          </mesh>
-        );
-      })}
-      {/* RVs */}
-      {[[1.8, 0.2, -0.3], [-1.8, 0.2, -0.8]].map((pos, i) => (
+      {[[-0.8, 0, -0.4], [0.4, 0, -0.8], [-0.4, 0, 0.7], [1, 0, 0.3]].map((pos, i) => (
         <mesh key={i} position={pos as [number, number, number]}>
-          <boxGeometry args={[0.8, 0.4, 0.4]} />
-          <meshStandardMaterial color={i === 0 ? "#ddd" : "#c4b5a0"} roughness={0.7} />
+          <coneGeometry args={[0.25, 0.35, 4]} />
+          <meshStandardMaterial color={["#ef4444", "#3b82f6", "#22c55e", "#f59e0b"][i]} roughness={0.7} />
         </mesh>
       ))}
-      {/* Label */}
-      <Text position={[0, 1.2, 0]} fontSize={0.25} color="#f59e0b" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        Camping
-      </Text>
+      <Label text="Camping" color="#fbbf24" />
     </group>
   );
 }
 
-// ---- RIDESHARE LOT ----
 function RideshareLot({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[2.5, 2]} />
+      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2, 1.5]} />
         <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
       </mesh>
-      {/* Waiting cars */}
-      {[[-0.6, 0.15, 0], [0.6, 0.15, 0]].map((pos, i) => (
+      {[[-0.5, 0.12, 0], [0.5, 0.12, 0]].map((pos, i) => (
         <mesh key={i} position={pos as [number, number, number]}>
-          <boxGeometry args={[0.5, 0.25, 0.3]} />
-          <meshStandardMaterial color={i === 0 ? "#1a1a1a" : "#ffffff"} roughness={0.5} />
+          <boxGeometry args={[0.45, 0.2, 0.25]} />
+          <meshStandardMaterial color={i === 0 ? "#111" : "#fff"} roughness={0.5} />
         </mesh>
       ))}
-      <Text position={[0, 1, 0]} fontSize={0.2} color="#a855f7" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.01} outlineColor="#000">
-        Uber / Lyft
-      </Text>
+      <Label text="Uber/Lyft" color="#c084fc" />
     </group>
   );
 }
 
-// ---- ENTRANCE GATE ----
 function EntranceGate({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      {/* Gate posts */}
-      {[-1.5, 1.5].map((x) => (
-        <mesh key={x} position={[x, 1.5, 0]}>
-          <cylinderGeometry args={[0.1, 0.1, 3, 8]} />
-          <meshStandardMaterial color="#888" metalness={0.6} />
+      {[-1.3, 1.3].map((x) => (
+        <mesh key={x} position={[x, 1.3, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 2.6, 6]} />
+          <meshStandardMaterial color="#888" metalness={0.5} />
         </mesh>
       ))}
-      {/* Top bar */}
-      <mesh position={[0, 3, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.08, 0.08, 3.2, 8]} />
-        <meshStandardMaterial color="#888" metalness={0.6} />
+      <mesh position={[0, 2.6, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.06, 0.06, 2.8, 6]} />
+        <meshStandardMaterial color="#888" metalness={0.5} />
       </mesh>
-      {/* ENTRANCE sign */}
-      <Text position={[0, 3.4, 0]} fontSize={0.3} color="#ffffff" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.02} outlineColor="#7c3aed">
-        ENTRANCE
-      </Text>
-      {/* removed pointLight for perf */}
+      <Label text="ENTRANCE" color="#a78bfa" y={3} />
     </group>
   );
 }
 
-// ---- MAIN EXPORT ----
 export function Amenities() {
   return (
     <group>
-      {/* === WATER STATIONS === */}
-      <WaterStation position={[4, 0, 5]} name="Water" />
-      <WaterStation position={[15, 0, 5]} name="Water" />
-      <WaterStation position={[-16, 0, -2]} name="Water" />
-      <WaterStation position={[-5, 0, 20]} name="Water" />
+      <WaterStation position={[4, 0, 5]} />
+      <WaterStation position={[15, 0, 5]} />
+      <WaterStation position={[-16, 0, -2]} />
+      <WaterStation position={[-5, 0, 20]} />
 
-      {/* === RESTROOMS === */}
-      <Restroom position={[3, 0, -12]} name="Restrooms" type="porta-potty" />
-      <Restroom position={[16, 0, 4]} name="Restrooms" type="porta-potty" />
-      <Restroom position={[-16, 0, 0]} name="Restrooms" type="flush" />
-      <Restroom position={[-6, 0, 18]} name="Restrooms" type="porta-potty" />
+      <Restroom position={[3, 0, -12]} type="porta-potty" />
+      <Restroom position={[16, 0, 4]} type="porta-potty" />
+      <Restroom position={[-16, 0, 0]} type="flush" />
+      <Restroom position={[-6, 0, 18]} type="porta-potty" />
 
-      {/* === PARKING === */}
-      <ParkingLot position={[0, 0, 25]} name="General Parking" />
-      <ParkingLot position={[-12, 0, 22]} name="Preferred Parking" />
+      <ParkingLot position={[0, 0, 25]} name="Parking" />
+      <ParkingLot position={[-12, 0, 22]} name="VIP Parking" />
 
-      {/* === RIDESHARE === */}
       <RideshareLot position={[12, 0, 24]} />
 
-      {/* === MEDICAL === */}
       <MedicalTent position={[2, 0, 16]} />
       <MedicalTent position={[14, 0, 8]} />
 
-      {/* === CHARGING LOCKERS === */}
       <ChargingLockers position={[0, 0, 18]} />
-
-      {/* === MERCH === */}
       <MerchTent position={[-2, 0, 20]} />
-
-      {/* === CAMPING === */}
       <CampingArea position={[-18, 0, 20]} />
-
-      {/* === ENTRANCE === */}
       <EntranceGate position={[0, 0, 28]} />
     </group>
   );

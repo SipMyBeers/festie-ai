@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Preload, Stars } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Suspense, useEffect } from "react";
 import { useFestieStore } from "@/lib/store";
 import { SolarSystem } from "./SolarSystem";
@@ -28,24 +27,18 @@ function SceneContent() {
   return (
     <>
       <ScrollCamera />
-      <ambientLight intensity={0.05} />
+      <ambientLight intensity={0.15} />
+      <directionalLight position={[10, 15, 10]} intensity={0.6} />
       <SolarSystem />
       <Stars
         radius={200}
         depth={100}
-        count={3000}
+        count={1500}
         factor={4}
         fade
-        speed={0.5}
+        speed={0.3}
       />
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.5}
-          luminanceSmoothing={0.9}
-          intensity={1.2}
-          mipmapBlur
-        />
-      </EffectComposer>
+      {/* Bloom removed — biggest performance killer */}
       <Preload all />
     </>
   );
@@ -55,10 +48,10 @@ export function Scene() {
   return (
     <Canvas
       className="!fixed inset-0"
-      camera={{ position: [0, 30, 60], fov: 60, near: 0.1, far: 1000 }}
-      dpr={[1, 2]}
+      camera={{ position: [0, 30, 60], fov: 60, near: 0.1, far: 500 }}
+      dpr={[1, 1.5]}
       gl={{
-        antialias: true,
+        antialias: false,
         alpha: false,
         powerPreference: "high-performance",
       }}
