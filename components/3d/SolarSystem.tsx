@@ -41,10 +41,14 @@ export function SolarSystem() {
           </mesh>
         ))}
 
-      {/* All planets always render — selected one slides to center, others keep orbiting */}
-      {planetConfigs.map((config) => (
-        <Planet key={config.festival.id} {...config} />
-      ))}
+      {/* Only render selected planet when one is chosen, all when none selected */}
+      {selectedPlanetSlug
+        ? planetConfigs
+            .filter((c) => c.festival.slug === selectedPlanetSlug)
+            .map((config) => <Planet key={config.festival.id} {...config} />)
+        : planetConfigs.map((config) => (
+            <Planet key={config.festival.id} {...config} />
+          ))}
     </group>
   );
 }
