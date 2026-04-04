@@ -6,6 +6,7 @@ import { Text, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { Lasers } from "./effects/Lasers";
 import { Particles } from "./effects/Particles";
+import { useFestieStore } from "@/lib/store";
 
 function useIsMobile(): boolean {
   const [isMobile, setIsMobile] = useState(false);
@@ -130,8 +131,12 @@ function CrowdPerson({
 
 export function HeroRave() {
   const isMobile = useIsMobile();
+  const cameraMode = useFestieStore((s) => s.cameraMode);
   const particleCount = isMobile ? 100 : 300;
   const crowdCount = isMobile ? 30 : 60;
+
+  // Don't render when in solar system or planet view
+  if (cameraMode !== "hero") return null;
 
   return (
     <group>
