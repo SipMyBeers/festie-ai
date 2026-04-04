@@ -38,9 +38,9 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 
   return (
     <group>
-      {/* Ground - warmer, brighter */}
+      {/* Ground - warmer, brighter, much larger */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[25, 64]} />
+        <circleGeometry args={[50, 64]} />
         <meshStandardMaterial color={terrainColor} roughness={0.85} metalness={0.05} />
       </mesh>
 
@@ -49,9 +49,12 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 
       {/* Festival ground lights - warm ambient glow between stages */}
       {[
-        [0, 0.05, 2],
-        [-2, 0.05, 0],
-        [2, 0.05, 0],
+        [0, 0.05, 3],
+        [-6, 0.05, 8],
+        [6, 0.05, 8],
+        [0, 0.05, 12],
+        [-10, 0.05, 3],
+        [10, 0.05, 3],
       ].map((pos, i) => (
         <pointLight
           key={i}
@@ -90,9 +93,9 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 
 function WanderingCrowd() {
   const people = useMemo(() => {
-    return Array.from({ length: 40 }, () => ({
-      x: (Math.random() - 0.5) * 14,
-      z: (Math.random() - 0.5) * 10,
+    return Array.from({ length: 60 }, () => ({
+      x: (Math.random() - 0.5) * 30,
+      z: (Math.random() - 0.3) * 25,
       height: 0.35 + Math.random() * 0.2,
       shade: Math.random(),
     }));
@@ -123,10 +126,10 @@ function StringLights() {
   const lights = useMemo(() => {
     const points: [number, number, number][] = [];
     // Arc of lights
-    for (let i = 0; i < 20; i++) {
-      const angle = (i / 20) * Math.PI * 1.5 - Math.PI * 0.75;
-      const r = 6 + Math.sin(i * 0.5) * 0.5;
-      points.push([Math.cos(angle) * r, 1.8 + Math.sin(i * 0.8) * 0.3, Math.sin(angle) * r]);
+    for (let i = 0; i < 30; i++) {
+      const angle = (i / 30) * Math.PI * 1.8 - Math.PI * 0.9;
+      const r = 15 + Math.sin(i * 0.5) * 2;
+      points.push([Math.cos(angle) * r, 2.5 + Math.sin(i * 0.8) * 0.4, Math.sin(angle) * r]);
     }
     return points;
   }, []);
@@ -161,9 +164,9 @@ function StringLights() {
 
 function DesertTerrain() {
   const palms = useMemo(
-    () => Array.from({ length: 12 }, () => ({
-      x: (Math.random() - 0.5) * 40,
-      z: -8 - Math.random() * 15, // Push behind stages
+    () => Array.from({ length: 18 }, () => ({
+      x: (Math.random() - 0.5) * 60,
+      z: -15 - Math.random() * 25, // Push far behind stages
       scale: 0.6 + Math.random() * 0.6,
       lean: (Math.random() - 0.5) * 0.15,
     })),
@@ -172,13 +175,15 @@ function DesertTerrain() {
 
   return (
     <group>
-      {/* Background mountains - smoother, more segments */}
+      {/* Background mountains - pushed far back for larger ground */}
       {[
-        { pos: [-14, 0, -18] as [number, number, number], r: 6, h: 4 },
-        { pos: [12, 0, -20] as [number, number, number], r: 8, h: 6 },
-        { pos: [0, 0, -22] as [number, number, number], r: 10, h: 3.5 },
-        { pos: [-6, 0, -25] as [number, number, number], r: 12, h: 5 },
-        { pos: [8, 0, -24] as [number, number, number], r: 7, h: 4.5 },
+        { pos: [-25, 0, -35] as [number, number, number], r: 10, h: 8 },
+        { pos: [20, 0, -40] as [number, number, number], r: 14, h: 10 },
+        { pos: [0, 0, -45] as [number, number, number], r: 16, h: 7 },
+        { pos: [-12, 0, -42] as [number, number, number], r: 18, h: 9 },
+        { pos: [15, 0, -38] as [number, number, number], r: 12, h: 8 },
+        { pos: [30, 0, -42] as [number, number, number], r: 10, h: 6 },
+        { pos: [-30, 0, -38] as [number, number, number], r: 13, h: 7 },
       ].map((mt, i) => (
         <mesh key={i} position={mt.pos}>
           <coneGeometry args={[mt.r, mt.h, 16]} />

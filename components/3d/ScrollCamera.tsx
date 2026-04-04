@@ -73,7 +73,7 @@ export function ScrollCamera() {
       } else if (mode === "solar-system") {
         orbitDistance.current = Math.max(25, Math.min(120, orbitDistance.current + e.deltaY * 0.05));
       } else if (mode === "planet-surface") {
-        orbitDistance.current = Math.max(4, Math.min(25, orbitDistance.current + e.deltaY * 0.02));
+        orbitDistance.current = Math.max(10, Math.min(60, orbitDistance.current + e.deltaY * 0.03));
       }
     };
 
@@ -116,9 +116,9 @@ export function ScrollCamera() {
   useEffect(() => {
     arrivalProgress.current = 0;
     if (selectedPlanetSlug) {
-      orbitDistance.current = 12;
+      orbitDistance.current = 30;
       orbitAngle.current = 0;
-      orbitTilt.current = 0.6;
+      orbitTilt.current = 0.5;
     }
   }, [selectedPlanetSlug]);
 
