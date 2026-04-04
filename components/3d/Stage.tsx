@@ -123,14 +123,11 @@ export function Stage({ stage, currentPerformance, nextPerformance }: StageProps
         </group>
       ))}
 
-      {/* Stage lights (colored spotlights) */}
-      <pointLight
-        position={[0, 2.8, 0]}
-        color={stage.color}
-        intensity={isLive ? 5 : 1}
-        distance={8}
-        decay={2}
-      />
+      {/* Stage glow — emissive mesh instead of pointLight for perf */}
+      <mesh position={[0, 2.8, 0]}>
+        <sphereGeometry args={[0.2, 6, 6]} />
+        <meshBasicMaterial color={stage.color} transparent opacity={isLive ? 0.6 : 0.2} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
 
       {/* Ground glow under stage */}
       <mesh position={[0, 0.02, 0.5]} rotation={[-Math.PI / 2, 0, 0]}>

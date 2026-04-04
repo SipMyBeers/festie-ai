@@ -126,7 +126,7 @@ function MedicalTent({ position }: { position: [number, number, number] }) {
         Medical
       </Text>
       {/* Red glow */}
-      <pointLight position={[0, 0.8, 0.5]} color="#ef4444" intensity={1} distance={4} decay={2} />
+      {/* removed pointLight for perf */}
     </group>
   );
 }
@@ -175,7 +175,7 @@ function MerchTent({ position }: { position: [number, number, number] }) {
       <Text position={[0, 1.8, 0.3]} fontSize={0.3} color="#f97316" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.02} outlineColor="#000">
         MERCH
       </Text>
-      <pointLight position={[0, 1.3, 0.6]} color="#ffeecc" intensity={1} distance={4} decay={2} />
+      {/* removed pointLight for perf */}
     </group>
   );
 }
@@ -258,7 +258,7 @@ function EntranceGate({ position }: { position: [number, number, number] }) {
       <Text position={[0, 3.4, 0]} fontSize={0.3} color="#ffffff" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" outlineWidth={0.02} outlineColor="#7c3aed">
         ENTRANCE
       </Text>
-      <pointLight position={[0, 2.5, 0.5]} color="#7c3aed" intensity={2} distance={5} decay={2} />
+      {/* removed pointLight for perf */}
     </group>
   );
 }
