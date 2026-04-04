@@ -8,7 +8,8 @@ import { FilterChips } from "./FilterChips";
 export function SolarSystemUI() {
   const cameraMode = useFestieStore((s) => s.cameraMode);
 
-  if (cameraMode !== "solar-system") return null;
+  const selectedPlanet = useFestieStore((s) => s.selectedPlanetSlug);
+  if (cameraMode !== "solar-system" || selectedPlanet) return null;
 
   return (
     <motion.div

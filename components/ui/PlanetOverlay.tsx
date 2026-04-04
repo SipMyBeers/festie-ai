@@ -12,8 +12,7 @@ export function PlanetOverlay() {
   const setSelectedPlanet = useFestieStore((s) => s.setSelectedPlanet);
   const setCameraMode = useFestieStore((s) => s.setCameraMode);
 
-  if (!selectedSlug || cameraMode === "hero" || cameraMode === "solar-system")
-    return null;
+  if (!selectedSlug) return null;
 
   const festival = getFestivalBySlug(selectedSlug);
   if (!festival) return null;
@@ -93,7 +92,7 @@ export function PlanetOverlay() {
       )}
 
       {/* Timeline + stage panel for planets with schedule */}
-      {hasSchedule && cameraMode === "planet-surface" && (
+      {hasSchedule && (
         <>
           <StagePanel festival={festival} />
           <Timeline festival={festival} />

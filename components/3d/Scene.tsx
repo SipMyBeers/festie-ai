@@ -14,17 +14,15 @@ import { getFestivalBySlug } from "@/lib/data/festivals";
 function ActivePlanetSurface() {
   const selectedSlug = useFestieStore((s) => s.selectedPlanetSlug);
   const cameraMode = useFestieStore((s) => s.cameraMode);
-  const planetPositions = useFestieStore((s) => s.planetPositions);
 
-  if (!selectedSlug || cameraMode === "hero" || cameraMode === "solar-system")
-    return null;
+  if (!selectedSlug || cameraMode === "solar-system") return null;
 
   const festival = getFestivalBySlug(selectedSlug);
-  const pos = planetPositions[selectedSlug];
-  if (!festival || !pos) return null;
+  if (!festival) return null;
 
+  // Render at origin — the selected planet slides to (0,0,0)
   return (
-    <group position={pos}>
+    <group position={[0, 0, 0]}>
       {festival.stages.length > 0 ? (
         <PlanetSurface festival={festival} />
       ) : (

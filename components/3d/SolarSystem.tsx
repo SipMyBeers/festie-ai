@@ -7,7 +7,6 @@ import { Sun } from "./Sun";
 import { Planet } from "./Planet";
 
 export function SolarSystem() {
-  const cameraMode = useFestieStore((s) => s.cameraMode);
   const selectedPlanetSlug = useFestieStore((s) => s.selectedPlanetSlug);
 
   const planetConfigs = useMemo(() => {
@@ -22,15 +21,13 @@ export function SolarSystem() {
     }));
   }, []);
 
-  const isOnPlanet = cameraMode === "planet-surface" || cameraMode === "flying-in";
-
   return (
-    <group position={[0, 0, 0]}>
-      {/* Hide sun when on a planet */}
-      {!isOnPlanet && <Sun />}
+    <group>
+      {/* Hide sun when a planet is selected (it's at center, would overlap) */}
+      {!selectedPlanetSlug && <Sun />}
 
-      {/* Hide orbit rings when on a planet */}
-      {!isOnPlanet &&
+      {/* Orbit rings - hide when planet selected */}
+      {!selectedPlanetSlug &&
         planetConfigs.map(({ orbitRadius }, i) => (
           <mesh key={i} rotation={[Math.PI / 2, 0, 0]}>
             <ringGeometry args={[orbitRadius - 0.02, orbitRadius + 0.02, 128]} />
@@ -44,14 +41,10 @@ export function SolarSystem() {
           </mesh>
         ))}
 
-      {/* When on a planet, only render the selected planet */}
-      {isOnPlanet
-        ? planetConfigs
-            .filter((c) => c.festival.slug === selectedPlanetSlug)
-            .map((config) => <Planet key={config.festival.id} {...config} />)
-        : planetConfigs.map((config) => (
-            <Planet key={config.festival.id} {...config} />
-          ))}
+      {/* All planets always render — selected one slides to center, others keep orbiting */}
+      {planetConfigs.map((config) => (
+        <Planet key={config.festival.id} {...config} />
+      ))}
     </group>
   );
 }

@@ -35,27 +35,29 @@ export function Planet({
   const isLive = festival.status === "live";
   const isSelected = selectedPlanetSlug === festival.slug;
 
-  // Track last reported position to avoid spamming store updates
   const lastReportedPos = useRef<[number, number, number]>([0, 0, 0]);
-  // Freeze angle when selected so planet stops orbiting
-  const frozenAngle = useRef<number | null>(null);
+  // Target position: center (0,0,0) when selected, orbit position when not
+  const targetPos = useRef(new THREE.Vector3());
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
 
-    // Stop orbiting when this planet is selected (prevents shaking)
+    // Calculate orbit position
+    const angle = startAngle + clock.elapsedTime * orbitSpeed;
+    const orbitX = Math.cos(angle) * orbitRadius;
+    const orbitZ = Math.sin(angle) * orbitRadius;
+    const orbitY = Math.sin(angle * 2) * orbitRadius * 0.05;
+
     if (isSelected) {
-      if (frozenAngle.current === null) {
-        frozenAngle.current = startAngle + clock.elapsedTime * orbitSpeed;
-      }
+      // Selected: slide to center (0, 0, 0)
+      targetPos.current.set(0, 0, 0);
     } else {
-      frozenAngle.current = null;
+      // Not selected: orbit normally
+      targetPos.current.set(orbitX, orbitY, orbitZ);
     }
 
-    const angle = frozenAngle.current ?? (startAngle + clock.elapsedTime * orbitSpeed);
-    groupRef.current.position.x = Math.cos(angle) * orbitRadius;
-    groupRef.current.position.z = Math.sin(angle) * orbitRadius;
-    groupRef.current.position.y = isSelected ? 0 : Math.sin(angle * 2) * orbitRadius * 0.05;
+    // Smooth lerp to target position
+    groupRef.current.position.lerp(targetPos.current, isSelected ? 0.05 : 0.1);
 
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.002;
