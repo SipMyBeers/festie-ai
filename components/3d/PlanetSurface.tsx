@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useRef, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Festival, Performance } from "@/lib/types";
 import { Stage } from "./Stage";
@@ -38,33 +39,23 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 
   return (
     <group>
-      {/* Ground - warmer, brighter, much larger */}
+      {/* Ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[50, 64]} />
+        <circleGeometry args={[60, 64]} />
         <meshStandardMaterial color={terrainColor} roughness={0.85} metalness={0.05} />
       </mesh>
+
+      {/* Pathways between stages - lighter sand */}
+      <Pathways />
 
       {/* Terrain features */}
       {festival.terrainType === "desert" && <DesertTerrain />}
 
-      {/* Festival ground lights - warm ambient glow between stages */}
-      {[
-        [0, 0.05, 3],
-        [-6, 0.05, 8],
-        [6, 0.05, 8],
-        [0, 0.05, 12],
-        [-10, 0.05, 3],
-        [10, 0.05, 3],
-      ].map((pos, i) => (
-        <pointLight
-          key={i}
-          position={pos as [number, number, number]}
-          color="#ff9944"
-          intensity={1.5}
-          distance={10}
-          decay={2}
-        />
-      ))}
+      {/* Coachella-specific landmarks */}
+      <FerrisWheel />
+      <ArtInstallations />
+      <FoodCourt />
+      <StringLights />
 
       {/* Stages */}
       {festival.stages.map((stage) => (
@@ -76,32 +67,269 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
         />
       ))}
 
-      {/* General crowd scattered between stages */}
+      {/* Wandering crowd between stages */}
       <WanderingCrowd />
 
-      {/* Festival string lights */}
-      <StringLights />
-
-      {/* Warm lighting */}
-      <ambientLight intensity={0.35} color="#ffeedd" />
-      <directionalLight position={[10, 15, 5]} intensity={0.8} color="#ffddbb" />
-      {/* Sunset sky color from behind */}
-      <directionalLight position={[-5, 3, -10]} intensity={0.3} color="#ff6633" />
+      {/* Warm festival lighting */}
+      <ambientLight intensity={0.4} color="#ffeedd" />
+      <directionalLight position={[15, 20, 10]} intensity={0.8} color="#ffddbb" />
+      <directionalLight position={[-10, 5, -15]} intensity={0.3} color="#ff6633" />
+      {/* Ground lights between stages */}
+      {[
+        [0, 0.1, 5], [-6, 0.1, 8], [6, 0.1, 8],
+        [0, 0.1, 14], [-10, 0.1, 3], [10, 0.1, 3],
+      ].map((pos, i) => (
+        <pointLight key={i} position={pos as [number, number, number]} color="#ff9944" intensity={2} distance={12} decay={2} />
+      ))}
     </group>
   );
 }
 
-function WanderingCrowd() {
-  const people = useMemo(() => {
-    return Array.from({ length: 60 }, () => ({
-      x: (Math.random() - 0.5) * 30,
-      z: (Math.random() - 0.3) * 25,
-      height: 0.35 + Math.random() * 0.2,
-      shade: Math.random(),
-    }));
+// ---- FERRIS WHEEL ----
+function FerrisWheel() {
+  const wheelRef = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    if (wheelRef.current) {
+      wheelRef.current.rotation.z = clock.elapsedTime * 0.15;
+    }
+  });
+
+  return (
+    <group position={[5, 0, 6]}>
+      {/* Center post */}
+      <mesh position={[0, 5, 0]}>
+        <cylinderGeometry args={[0.15, 0.3, 10, 8]} />
+        <meshStandardMaterial color="#888" metalness={0.7} roughness={0.3} />
+      </mesh>
+      {/* Support legs */}
+      {[-1.5, 1.5].map((x) => (
+        <mesh key={x} position={[x, 2.5, 0]} rotation={[0, 0, x > 0 ? -0.15 : 0.15]}>
+          <cylinderGeometry args={[0.1, 0.15, 5.5, 6]} />
+          <meshStandardMaterial color="#777" metalness={0.6} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Rotating wheel */}
+      <group ref={wheelRef} position={[0, 5, 0]}>
+        {/* Rim */}
+        <mesh>
+          <torusGeometry args={[3.5, 0.08, 8, 32]} />
+          <meshStandardMaterial color="#aaa" metalness={0.8} roughness={0.2} />
+        </mesh>
+        {/* Spokes */}
+        {Array.from({ length: 12 }, (_, i) => {
+          const angle = (i / 12) * Math.PI * 2;
+          return (
+            <mesh key={i} rotation={[0, 0, angle]}>
+              <boxGeometry args={[0.04, 7, 0.04]} />
+              <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
+            </mesh>
+          );
+        })}
+        {/* Gondolas */}
+        {Array.from({ length: 12 }, (_, i) => {
+          const angle = (i / 12) * Math.PI * 2;
+          const x = Math.cos(angle) * 3.5;
+          const y = Math.sin(angle) * 3.5;
+          const colors = ["#ff4444", "#4488ff", "#ffaa00", "#44ff44", "#ff44ff", "#44ffff",
+                          "#ff8844", "#8844ff", "#ff4488", "#88ff44", "#4444ff", "#ffff44"];
+          return (
+            <mesh key={i} position={[x, y, 0]}>
+              <boxGeometry args={[0.3, 0.4, 0.3]} />
+              <meshStandardMaterial color={colors[i]} emissive={colors[i]} emissiveIntensity={0.3} />
+            </mesh>
+          );
+        })}
+      </group>
+      {/* Lights on the wheel */}
+      <pointLight position={[0, 5, 1]} color="#ffaa44" intensity={2} distance={8} decay={2} />
+    </group>
+  );
+}
+
+// ---- ART INSTALLATIONS ----
+function ArtInstallations() {
+  return (
+    <group>
+      {/* Giant balloon-like sculpture */}
+      <group position={[-5, 0, 10]}>
+        <mesh position={[0, 2, 0]}>
+          <sphereGeometry args={[1.5, 16, 16]} />
+          <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.2} metalness={0.3} roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 0.5, 0]}>
+          <cylinderGeometry args={[0.15, 0.15, 1, 8]} />
+          <meshStandardMaterial color="#888" metalness={0.6} />
+        </mesh>
+      </group>
+
+      {/* Neon arch gateway */}
+      <group position={[0, 0, 18]}>
+        <mesh position={[-2, 2.5, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 5, 8]} />
+          <meshStandardMaterial color="#7c3aed" emissive="#7c3aed" emissiveIntensity={0.5} />
+        </mesh>
+        <mesh position={[2, 2.5, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 5, 8]} />
+          <meshStandardMaterial color="#7c3aed" emissive="#7c3aed" emissiveIntensity={0.5} />
+        </mesh>
+        <mesh position={[0, 5, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.1, 0.1, 4.2, 8]} />
+          <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={0.5} />
+        </mesh>
+      </group>
+
+      {/* Glowing pyramid */}
+      <group position={[12, 0, 12]}>
+        <mesh position={[0, 1.5, 0]}>
+          <coneGeometry args={[1.5, 3, 4]} />
+          <meshStandardMaterial color="#06b6d4" emissive="#06b6d4" emissiveIntensity={0.3} transparent opacity={0.7} />
+        </mesh>
+        <pointLight position={[0, 1.5, 0]} color="#06b6d4" intensity={2} distance={6} decay={2} />
+      </group>
+
+      {/* Tall totems/flags */}
+      {[[-15, 0, 5], [15, 0, 5], [-10, 0, 15], [10, 0, 15]].map((pos, i) => {
+        const colors = ["#f97316", "#7c3aed", "#ec4899", "#06b6d4"];
+        return (
+          <group key={i} position={pos as [number, number, number]}>
+            <mesh position={[0, 3, 0]}>
+              <cylinderGeometry args={[0.05, 0.08, 6, 6]} />
+              <meshStandardMaterial color="#aaa" metalness={0.5} />
+            </mesh>
+            {/* Flag/banner */}
+            <mesh position={[0.4, 5, 0]}>
+              <planeGeometry args={[0.8, 1.2]} />
+              <meshStandardMaterial color={colors[i]} emissive={colors[i]} emissiveIntensity={0.2} side={THREE.DoubleSide} />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+// ---- FOOD COURT ----
+function FoodCourt() {
+  // Row of food stalls between stages
+  const stalls = useMemo(() => [
+    { pos: [-4, 0, 8] as [number, number, number], color: "#f97316", name: "Tacos" },
+    { pos: [-2, 0, 8] as [number, number, number], color: "#ef4444", name: "Pizza" },
+    { pos: [0, 0, 8] as [number, number, number], color: "#22c55e", name: "Vegan" },
+    { pos: [2, 0, 8] as [number, number, number], color: "#3b82f6", name: "Drinks" },
+  ], []);
+
+  return (
+    <group>
+      {stalls.map((stall, i) => (
+        <group key={i} position={stall.pos}>
+          {/* Stall structure */}
+          <mesh position={[0, 0.8, 0]}>
+            <boxGeometry args={[1.5, 1.6, 1]} />
+            <meshStandardMaterial color="#ddd" roughness={0.8} />
+          </mesh>
+          {/* Awning */}
+          <mesh position={[0, 1.7, 0.3]}>
+            <boxGeometry args={[1.8, 0.1, 1.4]} />
+            <meshStandardMaterial color={stall.color} />
+          </mesh>
+          {/* Counter light */}
+          <pointLight position={[0, 1.5, 0.5]} color="#ffeecc" intensity={0.5} distance={3} decay={2} />
+        </group>
+      ))}
+      {/* People queuing at food stalls */}
+      {Array.from({ length: 15 }, (_, i) => {
+        const stallIdx = Math.floor(i / 4);
+        const queuePos = i % 4;
+        const stall = stalls[stallIdx % stalls.length];
+        return (
+          <group key={i} position={[stall.pos[0] + (Math.random() - 0.5) * 0.8, 0, stall.pos[2] + 1.2 + queuePos * 0.4]}>
+            <mesh position={[0, 0.22, 0]}>
+              <capsuleGeometry args={[0.05, 0.35, 4, 8]} />
+              <meshStandardMaterial color={["#2a2a3a", "#3a3050", "#4a3a3a"][i % 3]} roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 0.47, 0]}>
+              <sphereGeometry args={[0.06, 6, 6]} />
+              <meshStandardMaterial color="#ddb89a" roughness={0.8} />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+// ---- PATHWAYS ----
+function Pathways() {
+  return (
+    <group>
+      {/* Main paths connecting stages - slightly lighter sand */}
+      {[
+        { from: [0, 0.02, -6], to: [0, 0.02, 18], width: 1.5 },
+        { from: [-14, 0.02, 3], to: [14, 0.02, 3], width: 1.2 },
+        { from: [-10, 0.02, 3], to: [-8, 0.02, 14], width: 1 },
+        { from: [10, 0.02, 3], to: [8, 0.02, 14], width: 1 },
+      ].map((path, i) => {
+        const from = new THREE.Vector3(...(path.from as [number, number, number]));
+        const to = new THREE.Vector3(...(path.to as [number, number, number]));
+        const mid = from.clone().add(to).multiplyScalar(0.5);
+        const length = from.distanceTo(to);
+        const angle = Math.atan2(to.x - from.x, to.z - from.z);
+        return (
+          <mesh key={i} position={[mid.x, 0.02, mid.z]} rotation={[-Math.PI / 2, 0, -angle]}>
+            <planeGeometry args={[path.width, length]} />
+            <meshStandardMaterial color="#e0c070" roughness={0.95} metalness={0} transparent opacity={0.4} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+// ---- STRING LIGHTS ----
+function StringLights() {
+  const lights = useMemo(() => {
+    const points: [number, number, number][] = [];
+    // Large arc around the festival
+    for (let i = 0; i < 40; i++) {
+      const angle = (i / 40) * Math.PI * 1.8 - Math.PI * 0.9;
+      const r = 18 + Math.sin(i * 0.4) * 2;
+      points.push([Math.cos(angle) * r, 2.8 + Math.sin(i * 0.6) * 0.5, Math.sin(angle) * r]);
+    }
+    // Inner ring connecting stages
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 2;
+      const r = 8;
+      points.push([Math.cos(angle) * r, 2.2 + Math.sin(i * 0.8) * 0.3, Math.sin(angle) * r + 5]);
+    }
+    return points;
   }, []);
 
-  const bodyColors = ["#2a2a3a", "#3a3a4a", "#4a3a3a", "#3a4a4a", "#4a4a5a"];
+  return (
+    <group>
+      {lights.map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <sphereGeometry args={[0.06, 6, 6]} />
+          <meshBasicMaterial color="#ffcc55" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ))}
+      {lights.filter((_, i) => i % 4 === 0).map((pos, i) => (
+        <pointLight key={i} position={pos} color="#ffaa33" intensity={0.4} distance={4} decay={2} />
+      ))}
+    </group>
+  );
+}
+
+// ---- WANDERING CROWD ----
+function WanderingCrowd() {
+  const people = useMemo(() => {
+    return Array.from({ length: 80 }, () => ({
+      x: (Math.random() - 0.5) * 30,
+      z: (Math.random() - 0.2) * 25,
+      height: 0.35 + Math.random() * 0.2,
+      bodyColor: ["#2a2a3a", "#3a3050", "#4a3a3a", "#3a4a4a", "#503a3a", "#2a3a4a", "#4a4a3a", "#3a2a4a"][Math.floor(Math.random() * 8)],
+    }));
+  }, []);
 
   return (
     <group>
@@ -109,7 +337,7 @@ function WanderingCrowd() {
         <group key={i} position={[p.x, 0, p.z]}>
           <mesh position={[0, p.height * 0.5, 0]}>
             <capsuleGeometry args={[0.05, p.height, 4, 8]} />
-            <meshStandardMaterial color={bodyColors[i % bodyColors.length]} roughness={0.9} />
+            <meshStandardMaterial color={p.bodyColor} roughness={0.9} />
           </mesh>
           <mesh position={[0, p.height + 0.08, 0]}>
             <sphereGeometry args={[0.06, 6, 6]} />
@@ -121,90 +349,49 @@ function WanderingCrowd() {
   );
 }
 
-function StringLights() {
-  // Create paths of warm lights connecting stage areas
-  const lights = useMemo(() => {
-    const points: [number, number, number][] = [];
-    // Arc of lights
-    for (let i = 0; i < 30; i++) {
-      const angle = (i / 30) * Math.PI * 1.8 - Math.PI * 0.9;
-      const r = 15 + Math.sin(i * 0.5) * 2;
-      points.push([Math.cos(angle) * r, 2.5 + Math.sin(i * 0.8) * 0.4, Math.sin(angle) * r]);
-    }
-    return points;
-  }, []);
-
-  return (
-    <group>
-      {lights.map((pos, i) => (
-        <mesh key={i} position={pos}>
-          <sphereGeometry args={[0.05, 8, 8]} />
-          <meshBasicMaterial
-            color="#ffaa33"
-            transparent
-            opacity={0.8}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      ))}
-      {/* Glow from string lights */}
-      {lights.filter((_, i) => i % 3 === 0).map((pos, i) => (
-        <pointLight
-          key={i}
-          position={pos}
-          color="#ffaa33"
-          intensity={0.3}
-          distance={3}
-          decay={2}
-        />
-      ))}
-    </group>
-  );
-}
-
+// ---- DESERT TERRAIN ----
 function DesertTerrain() {
   const palms = useMemo(
-    () => Array.from({ length: 18 }, () => ({
-      x: (Math.random() - 0.5) * 60,
-      z: -15 - Math.random() * 25, // Push far behind stages
-      scale: 0.6 + Math.random() * 0.6,
-      lean: (Math.random() - 0.5) * 0.15,
+    () => Array.from({ length: 20 }, () => ({
+      x: (Math.random() - 0.5) * 80,
+      z: -20 - Math.random() * 30,
+      scale: 0.7 + Math.random() * 0.5,
+      lean: (Math.random() - 0.5) * 0.12,
     })),
     []
   );
 
   return (
     <group>
-      {/* Background mountains - pushed far back for larger ground */}
+      {/* Background mountains - Indio mountain range */}
       {[
-        { pos: [-25, 0, -35] as [number, number, number], r: 10, h: 8 },
-        { pos: [20, 0, -40] as [number, number, number], r: 14, h: 10 },
-        { pos: [0, 0, -45] as [number, number, number], r: 16, h: 7 },
-        { pos: [-12, 0, -42] as [number, number, number], r: 18, h: 9 },
-        { pos: [15, 0, -38] as [number, number, number], r: 12, h: 8 },
-        { pos: [30, 0, -42] as [number, number, number], r: 10, h: 6 },
-        { pos: [-30, 0, -38] as [number, number, number], r: 13, h: 7 },
+        { pos: [-30, 0, -40] as [number, number, number], r: 12, h: 9 },
+        { pos: [25, 0, -45] as [number, number, number], r: 16, h: 12 },
+        { pos: [0, 0, -50] as [number, number, number], r: 20, h: 8 },
+        { pos: [-15, 0, -48] as [number, number, number], r: 22, h: 10 },
+        { pos: [18, 0, -42] as [number, number, number], r: 14, h: 9 },
+        { pos: [35, 0, -48] as [number, number, number], r: 13, h: 7 },
+        { pos: [-35, 0, -44] as [number, number, number], r: 15, h: 8 },
+        { pos: [-5, 0, -55] as [number, number, number], r: 25, h: 6 },
       ].map((mt, i) => (
         <mesh key={i} position={mt.pos}>
-          <coneGeometry args={[mt.r, mt.h, 16]} />
-          <meshStandardMaterial color="#6b5a40" roughness={1} metalness={0} />
+          <coneGeometry args={[mt.r, mt.h, 24]} />
+          <meshStandardMaterial color={i % 2 === 0 ? "#6b5a40" : "#7a6848"} roughness={1} metalness={0} />
         </mesh>
       ))}
 
-      {/* Palm trees - only behind/around stages */}
+      {/* Palm trees along the perimeter */}
       {palms.map((p, i) => (
         <group key={i} position={[p.x, 0, p.z]} scale={p.scale} rotation={[0, 0, p.lean]}>
-          {/* Trunk - curved */}
-          <mesh position={[0, 1.8, 0]}>
-            <cylinderGeometry args={[0.06, 0.1, 3.6, 8]} />
+          <mesh position={[0, 2, 0]}>
+            <cylinderGeometry args={[0.06, 0.1, 4, 8]} />
             <meshStandardMaterial color="#7a6040" roughness={0.9} />
           </mesh>
-          {/* Fronds - multiple flat leaves */}
-          {[0, 1, 2, 3, 4].map((j) => {
-            const a = (j / 5) * Math.PI * 2;
+          {[0, 1, 2, 3, 4, 5].map((j) => {
+            const a = (j / 6) * Math.PI * 2;
             return (
-              <mesh key={j} position={[Math.cos(a) * 0.5, 3.6, Math.sin(a) * 0.5]} rotation={[0.5, a, 0]}>
-                <planeGeometry args={[0.3, 1.2]} />
+              <mesh key={j} position={[Math.cos(a) * 0.6, 4.2, Math.sin(a) * 0.6]} rotation={[0.6, a, 0]}>
+                <planeGeometry args={[0.3, 1.5]} />
                 <meshStandardMaterial color="#3a7a30" roughness={0.8} side={THREE.DoubleSide} />
               </mesh>
             );
@@ -212,13 +399,13 @@ function DesertTerrain() {
         </group>
       ))}
 
-      {/* Desert scrub / small bushes */}
-      {Array.from({ length: 20 }, (_, i) => {
+      {/* Desert scrub scattered around */}
+      {Array.from({ length: 30 }, (_, i) => {
         const angle = Math.random() * Math.PI * 2;
-        const dist = 10 + Math.random() * 12;
+        const dist = 20 + Math.random() * 25;
         return (
-          <mesh key={i} position={[Math.cos(angle) * dist, 0.15, Math.sin(angle) * dist]}>
-            <sphereGeometry args={[0.2 + Math.random() * 0.2, 6, 6]} />
+          <mesh key={i} position={[Math.cos(angle) * dist, 0.12, Math.sin(angle) * dist]}>
+            <sphereGeometry args={[0.15 + Math.random() * 0.2, 6, 6]} />
             <meshStandardMaterial color="#5a7a40" roughness={1} />
           </mesh>
         );
