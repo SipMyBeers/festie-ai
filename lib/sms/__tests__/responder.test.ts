@@ -1,33 +1,56 @@
+import { describe, it, expect } from "vitest";
 import { generateResponse } from "../responder";
 
-const tests: [string, string, (r: string) => boolean][] = [
-  ["greeting", "hey", (r) => r.includes("guide")],
-  ["help", "help", (r) => r.includes("help with")],
-  ["artist search sabrina", "when is Sabrina Carpenter?", (r) => r.includes("Coachella Stage")],
-  ["artist search anyma", "what time is anyma", (r) => r.includes("Sahara")],
-  ["schedule friday", "friday schedule", (r) => r.includes("Schedule")],
-  ["schedule saturday", "saturday lineup", (r) => r.includes("Schedule")],
-  ["parking faq", "where do i park?", (r) => r.toLowerCase().includes("parking")],
-  ["weather faq", "is it gonna be hot?", (r) => r.includes("85-100")],
-  ["prohibited faq", "can i bring a camera?", (r) => r.includes("professional cameras")],
-  ["water", "where can i get water", (r) => r.toLowerCase().includes("water")],
-  ["restrooms", "where is the nearest bathroom", (r) => r.toLowerCase().includes("restroom")],
-  ["food", "im hungry", (r) => r.toLowerCase().includes("food")],
-  ["fallback", "xyzzy gibberish", (r) => r.includes("not sure")],
-];
+describe("SMS Responder - Rule-based", () => {
+  it("responds to greeting", () => {
+    expect(generateResponse("hey")).toContain("guide");
+  });
 
-let passed = 0;
-let failed = 0;
+  it("responds to help", () => {
+    expect(generateResponse("help")).toContain("help with");
+  });
 
-for (const [name, input, check] of tests) {
-  const response = generateResponse(input);
-  if (check(response)) {
-    passed++;
-  } else {
-    failed++;
-    console.error(`FAIL: ${name}\n  Input: "${input}"\n  Response: "${response}"\n`);
-  }
-}
+  it("finds Sabrina Carpenter by name", () => {
+    expect(generateResponse("when is Sabrina Carpenter?")).toContain("Coachella Stage");
+  });
 
-console.log(`\n${passed}/${passed + failed} tests passed`);
-if (failed > 0) process.exit(1);
+  it("finds Anyma by name", () => {
+    expect(generateResponse("what time is anyma")).toContain("Sahara");
+  });
+
+  it("shows friday schedule", () => {
+    expect(generateResponse("friday schedule")).toContain("Schedule");
+  });
+
+  it("shows saturday schedule", () => {
+    expect(generateResponse("saturday lineup")).toContain("Schedule");
+  });
+
+  it("answers parking FAQ", () => {
+    expect(generateResponse("where do i park?").toLowerCase()).toContain("parking");
+  });
+
+  it("answers weather FAQ", () => {
+    expect(generateResponse("is it gonna be hot?")).toContain("85-100");
+  });
+
+  it("answers prohibited items FAQ", () => {
+    expect(generateResponse("can i bring a camera?")).toContain("professional cameras");
+  });
+
+  it("finds water stations", () => {
+    expect(generateResponse("where can i get water").toLowerCase()).toContain("water");
+  });
+
+  it("finds restrooms", () => {
+    expect(generateResponse("where is the nearest bathroom").toLowerCase()).toContain("restroom");
+  });
+
+  it("finds food options", () => {
+    expect(generateResponse("im hungry").toLowerCase()).toContain("food");
+  });
+
+  it("returns fallback for unknown input", () => {
+    expect(generateResponse("xyzzy gibberish")).toContain("not sure");
+  });
+});

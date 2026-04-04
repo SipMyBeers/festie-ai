@@ -1,5 +1,5 @@
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const MODEL = process.env.OLLAMA_MODEL || "gemma3:12b";
+const MODEL = process.env.OLLAMA_MODEL || "festie-coachella";
 
 import {
   FESTIVAL_INFO,

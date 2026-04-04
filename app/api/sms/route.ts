@@ -14,13 +14,18 @@ export async function POST(request: NextRequest) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
+    // Rule-based responder handles structured queries (artist lookup, schedule,
+    // water, FAQ) with 100% accuracy. Gemma handles conversational/open-ended
+    // questions where the rule-based responder returns the generic fallback.
+    const ruleResponse = generateResponse(incomingMessage);
+    const isFallback = ruleResponse.includes("I'm not sure about that");
+
     let responseText: string;
 
-    if (USE_OLLAMA) {
-      // TODO: Load conversation history from Supabase for this phone number
+    if (isFallback && USE_OLLAMA) {
       responseText = await generateOllamaResponse(incomingMessage, []);
     } else {
-      responseText = generateResponse(incomingMessage);
+      responseText = ruleResponse;
     }
 
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
