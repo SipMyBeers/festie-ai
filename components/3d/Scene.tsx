@@ -7,30 +7,6 @@ import { Suspense, useEffect } from "react";
 import { useFestieStore } from "@/lib/store";
 import { SolarSystem } from "./SolarSystem";
 import { ScrollCamera } from "./ScrollCamera";
-import { PlanetSurface } from "./PlanetSurface";
-import { GenericParty } from "./GenericParty";
-import { getFestivalBySlug } from "@/lib/data/festivals";
-
-function ActivePlanetSurface() {
-  const selectedSlug = useFestieStore((s) => s.selectedPlanetSlug);
-  const cameraMode = useFestieStore((s) => s.cameraMode);
-
-  if (!selectedSlug || cameraMode === "solar-system") return null;
-
-  const festival = getFestivalBySlug(selectedSlug);
-  if (!festival) return null;
-
-  // Render at origin — the selected planet slides to (0,0,0)
-  return (
-    <group position={[0, 0, 0]}>
-      {festival.stages.length > 0 ? (
-        <PlanetSurface festival={festival} />
-      ) : (
-        <GenericParty festival={festival} />
-      )}
-    </group>
-  );
-}
 
 function SceneContent() {
   const setAssetsLoaded = useFestieStore((s) => s.setAssetsLoaded);
@@ -54,7 +30,6 @@ function SceneContent() {
       <ScrollCamera />
       <ambientLight intensity={0.05} />
       <SolarSystem />
-      <ActivePlanetSurface />
       <Stars
         radius={200}
         depth={100}

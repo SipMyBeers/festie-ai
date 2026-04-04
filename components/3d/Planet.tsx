@@ -7,6 +7,8 @@ import * as THREE from "three";
 import { Festival } from "@/lib/types";
 import { useFestieStore } from "@/lib/store";
 import { AtmosphereGlow } from "./effects/AtmosphereGlow";
+import { PlanetSurface } from "./PlanetSurface";
+import { GenericParty } from "./GenericParty";
 
 interface PlanetProps {
   festival: Festival;
@@ -112,6 +114,17 @@ export function Planet({
           opacity={festival.comingSoon ? 0.4 : 1}
         />
       </mesh>
+
+      {/* Festival content ON the planet — scaled to fit on the sphere */}
+      {isSelected && (
+        <group position={[0, size, 0]} scale={size / 25}>
+          {festival.stages.length > 0 ? (
+            <PlanetSurface festival={festival} />
+          ) : (
+            <GenericParty festival={festival} />
+          )}
+        </group>
+      )}
 
       <AtmosphereGlow
         color={festival.planetColor}
