@@ -9,6 +9,7 @@ import { useFestieStore } from "@/lib/store";
 import { AtmosphereGlow } from "./effects/AtmosphereGlow";
 import { PlanetSurface } from "./PlanetSurface";
 import { GenericParty } from "./GenericParty";
+import { PlayerController } from "./PlayerController";
 
 interface PlanetProps {
   festival: Festival;
@@ -129,6 +130,9 @@ export function Planet({
         </group>
       )}
 
+      {/* Player controller — only when exploring */}
+      {isSelected && selectedPlanetSlug && <ExplorePlayer />}
+
       {!isSelected && (
         <AtmosphereGlow
           color={festival.planetColor}
@@ -208,6 +212,12 @@ export function Planet({
       )}
     </group>
   );
+}
+
+function ExplorePlayer() {
+  const cameraMode = useFestieStore((s) => s.cameraMode);
+  if (cameraMode !== "exploring") return null;
+  return <PlayerController />;
 }
 
 function LiveRings({ size, color }: { size: number; color: string }) {

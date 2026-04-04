@@ -74,6 +74,10 @@ export function ScrollCamera() {
   }, [gl.domElement]);
 
   useFrame(() => {
+    // Don't control camera in exploring mode — PlayerController handles it
+    const currentMode = useFestieStore.getState().cameraMode;
+    if (currentMode === "exploring") return;
+
     const d = orbitDistance.current;
     const position = new THREE.Vector3(
       Math.sin(orbitAngle.current) * Math.cos(orbitTilt.current) * d,
@@ -81,7 +85,6 @@ export function ScrollCamera() {
       Math.cos(orbitAngle.current) * Math.cos(orbitTilt.current) * d
     );
 
-    // Camera always looks at center (0,0,0) — the selected planet slides there
     camera.position.lerp(position, 0.08);
     camera.lookAt(lookAtTarget.current);
   });

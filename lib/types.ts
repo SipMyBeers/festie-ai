@@ -9,7 +9,7 @@ export type TerrainType =
 
 export type FestivalStatus = "upcoming" | "live" | "completed";
 export type PerformanceStatus = "upcoming" | "live" | "finished";
-export type CameraMode = "hero" | "solar-system" | "flying-in" | "planet-surface";
+export type CameraMode = "hero" | "solar-system" | "flying-in" | "planet-surface" | "exploring";
 
 export interface Festival {
   id: string;
