@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import * as THREE from "three";
 import { Festival, Performance } from "@/lib/types";
 import { Stage } from "./Stage";
 
@@ -24,27 +25,45 @@ function getNextPerformance(schedule: Performance[]): Performance | null {
 export function PlanetSurface({ festival }: PlanetSurfaceProps) {
   const terrainColor = useMemo(() => {
     switch (festival.terrainType) {
-      case "desert": return "#c2a04e";
-      case "playa": return "#8b7355";
-      case "coastal": return "#2d6a4f";
-      case "urban": return "#4a4a4a";
-      case "grassland": return "#4a7c59";
-      case "forest": return "#2d5a27";
-      case "fantasy": return "#1a5c3a";
-      default: return "#666";
+      case "desert": return "#d4a843";
+      case "playa": return "#a08060";
+      case "coastal": return "#3a8a5c";
+      case "urban": return "#555555";
+      case "grassland": return "#5a8c60";
+      case "forest": return "#3a6a30";
+      case "fantasy": return "#2a6c44";
+      default: return "#777";
     }
   }, [festival.terrainType]);
 
   return (
     <group>
-      {/* Ground */}
+      {/* Ground - warmer, brighter */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[20, 64]} />
-        <meshStandardMaterial color={terrainColor} roughness={0.9} metalness={0} />
+        <circleGeometry args={[25, 64]} />
+        <meshStandardMaterial color={terrainColor} roughness={0.85} metalness={0.05} />
       </mesh>
 
+      {/* Terrain features */}
       {festival.terrainType === "desert" && <DesertTerrain />}
 
+      {/* Festival ground lights - warm ambient glow between stages */}
+      {[
+        [0, 0.05, 2],
+        [-2, 0.05, 0],
+        [2, 0.05, 0],
+      ].map((pos, i) => (
+        <pointLight
+          key={i}
+          position={pos as [number, number, number]}
+          color="#ff9944"
+          intensity={1.5}
+          distance={10}
+          decay={2}
+        />
+      ))}
+
+      {/* Stages */}
       {festival.stages.map((stage) => (
         <Stage
           key={stage.id}
@@ -54,49 +73,149 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
         />
       ))}
 
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[10, 15, 5]} intensity={1} color="#ffeedd" castShadow />
+      {/* General crowd scattered between stages */}
+      <WanderingCrowd />
+
+      {/* Festival string lights */}
+      <StringLights />
+
+      {/* Warm lighting */}
+      <ambientLight intensity={0.35} color="#ffeedd" />
+      <directionalLight position={[10, 15, 5]} intensity={0.8} color="#ffddbb" />
+      {/* Sunset sky color from behind */}
+      <directionalLight position={[-5, 3, -10]} intensity={0.3} color="#ff6633" />
+    </group>
+  );
+}
+
+function WanderingCrowd() {
+  const positions = useMemo(() => {
+    const arr = new Float32Array(120 * 3);
+    for (let i = 0; i < 120; i++) {
+      // Scatter people across the festival grounds
+      arr[i * 3] = (Math.random() - 0.5) * 16;
+      arr[i * 3 + 1] = 0.15 + Math.random() * 0.3;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 12;
+    }
+    return arr;
+  }, []);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#ffcc88"
+        size={0.12}
+        transparent
+        opacity={0.7}
+        sizeAttenuation
+      />
+    </points>
+  );
+}
+
+function StringLights() {
+  // Create paths of warm lights connecting stage areas
+  const lights = useMemo(() => {
+    const points: [number, number, number][] = [];
+    // Arc of lights
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 1.5 - Math.PI * 0.75;
+      const r = 6 + Math.sin(i * 0.5) * 0.5;
+      points.push([Math.cos(angle) * r, 1.8 + Math.sin(i * 0.8) * 0.3, Math.sin(angle) * r]);
+    }
+    return points;
+  }, []);
+
+  return (
+    <group>
+      {lights.map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshBasicMaterial
+            color="#ffaa33"
+            transparent
+            opacity={0.8}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+      {/* Glow from string lights */}
+      {lights.filter((_, i) => i % 3 === 0).map((pos, i) => (
+        <pointLight
+          key={i}
+          position={pos}
+          color="#ffaa33"
+          intensity={0.3}
+          distance={3}
+          decay={2}
+        />
+      ))}
     </group>
   );
 }
 
 function DesertTerrain() {
   const palms = useMemo(
-    () => Array.from({ length: 15 }, () => ({
-      x: (Math.random() - 0.5) * 35,
-      z: (Math.random() - 0.5) * 35,
-      scale: 0.5 + Math.random() * 0.5,
+    () => Array.from({ length: 12 }, () => ({
+      x: (Math.random() - 0.5) * 40,
+      z: -8 - Math.random() * 15, // Push behind stages
+      scale: 0.6 + Math.random() * 0.6,
+      lean: (Math.random() - 0.5) * 0.15,
     })),
     []
   );
 
   return (
     <group>
-      {/* Mountains */}
+      {/* Background mountains - smoother, more segments */}
       {[
-        { pos: [-12, 0, -15] as [number, number, number], scale: [8, 5, 4] as [number, number, number] },
-        { pos: [10, 0, -18] as [number, number, number], scale: [10, 7, 5] as [number, number, number] },
-        { pos: [0, 0, -20] as [number, number, number], scale: [12, 4, 6] as [number, number, number] },
+        { pos: [-14, 0, -18] as [number, number, number], r: 6, h: 4 },
+        { pos: [12, 0, -20] as [number, number, number], r: 8, h: 6 },
+        { pos: [0, 0, -22] as [number, number, number], r: 10, h: 3.5 },
+        { pos: [-6, 0, -25] as [number, number, number], r: 12, h: 5 },
+        { pos: [8, 0, -24] as [number, number, number], r: 7, h: 4.5 },
       ].map((mt, i) => (
         <mesh key={i} position={mt.pos}>
-          <coneGeometry args={[mt.scale[0], mt.scale[1], 6]} />
-          <meshStandardMaterial color="#5c4a32" roughness={1} metalness={0} />
+          <coneGeometry args={[mt.r, mt.h, 16]} />
+          <meshStandardMaterial color="#6b5a40" roughness={1} metalness={0} />
         </mesh>
       ))}
 
-      {/* Palm trees */}
+      {/* Palm trees - only behind/around stages */}
       {palms.map((p, i) => (
-        <group key={i} position={[p.x, 0, p.z]} scale={p.scale}>
-          <mesh position={[0, 1.5, 0]}>
-            <cylinderGeometry args={[0.08, 0.12, 3, 6]} />
-            <meshStandardMaterial color="#8b6f47" roughness={0.9} />
+        <group key={i} position={[p.x, 0, p.z]} scale={p.scale} rotation={[0, 0, p.lean]}>
+          {/* Trunk - curved */}
+          <mesh position={[0, 1.8, 0]}>
+            <cylinderGeometry args={[0.06, 0.1, 3.6, 8]} />
+            <meshStandardMaterial color="#7a6040" roughness={0.9} />
           </mesh>
-          <mesh position={[0, 3.2, 0]}>
-            <sphereGeometry args={[0.8, 8, 6]} />
-            <meshStandardMaterial color="#2d5a27" roughness={0.8} />
-          </mesh>
+          {/* Fronds - multiple flat leaves */}
+          {[0, 1, 2, 3, 4].map((j) => {
+            const a = (j / 5) * Math.PI * 2;
+            return (
+              <mesh key={j} position={[Math.cos(a) * 0.5, 3.6, Math.sin(a) * 0.5]} rotation={[0.5, a, 0]}>
+                <planeGeometry args={[0.3, 1.2]} />
+                <meshStandardMaterial color="#3a7a30" roughness={0.8} side={THREE.DoubleSide} />
+              </mesh>
+            );
+          })}
         </group>
       ))}
+
+      {/* Desert scrub / small bushes */}
+      {Array.from({ length: 20 }, (_, i) => {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 10 + Math.random() * 12;
+        return (
+          <mesh key={i} position={[Math.cos(angle) * dist, 0.15, Math.sin(angle) * dist]}>
+            <sphereGeometry args={[0.2 + Math.random() * 0.2, 6, 6]} />
+            <meshStandardMaterial color="#5a7a40" roughness={1} />
+          </mesh>
+        );
+      })}
     </group>
   );
 }

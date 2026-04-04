@@ -215,8 +215,8 @@ export function ScrollCamera() {
       );
       const cameraTarget = planetVec.clone().add(camOffset);
 
-      camera.position.lerp(cameraTarget, 0.06);
-      lookAtTarget.current.lerp(planetVec, 0.06);
+      camera.position.lerp(cameraTarget, 0.03);
+      lookAtTarget.current.lerp(planetVec, 0.03);
       camera.lookAt(lookAtTarget.current);
     }
   });
