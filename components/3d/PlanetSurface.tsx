@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Festival, Performance } from "@/lib/types";
 import { Stage } from "./Stage";
+import { Amenities } from "./Amenities";
 
 interface PlanetSurfaceProps {
   festival: Festival;
@@ -62,6 +63,9 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
           nextPerformance={getNextPerformance(stage.schedule)}
         />
       ))}
+
+      {/* All amenities: water, restrooms, parking, medical, charging, merch, camping, entrance */}
+      <Amenities />
 
       {/* Wandering crowd between stages */}
       <WanderingCrowd />
