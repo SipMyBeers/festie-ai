@@ -39,7 +39,11 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 
   return (
     <group>
-      {/* No ground disc — the planet sphere IS the ground */}
+      {/* Ground disc */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[30, 64]} />
+        <meshStandardMaterial color={terrainColor} roughness={0.85} metalness={0.05} />
+      </mesh>
 
       {/* Skip terrain features at planet scale — they clip through the sphere */}
 

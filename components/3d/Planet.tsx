@@ -96,28 +96,31 @@ export function Planet({
 
   return (
     <group ref={groupRef}>
-      <mesh
-        ref={meshRef}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-        onClick={handleClick}
-        scale={hovered ? 1.15 : 1}
-      >
-        <sphereGeometry args={[size, 32, 32]} />
-        <meshStandardMaterial
-          color={festival.planetColor}
-          emissive={festival.planetColor}
-          emissiveIntensity={isLive ? 0.8 : 0.2}
-          roughness={0.7}
-          metalness={0.1}
-          transparent={festival.comingSoon}
-          opacity={festival.comingSoon ? 0.4 : 1}
-        />
-      </mesh>
+      {/* Planet sphere — hidden when selected (replaced by flat festival world) */}
+      {!isSelected && (
+        <mesh
+          ref={meshRef}
+          onPointerEnter={handlePointerEnter}
+          onPointerLeave={handlePointerLeave}
+          onClick={handleClick}
+          scale={hovered ? 1.15 : 1}
+        >
+          <sphereGeometry args={[size, 32, 32]} />
+          <meshStandardMaterial
+            color={festival.planetColor}
+            emissive={festival.planetColor}
+            emissiveIntensity={isLive ? 0.8 : 0.2}
+            roughness={0.7}
+            metalness={0.1}
+            transparent={festival.comingSoon}
+            opacity={festival.comingSoon ? 0.4 : 1}
+          />
+        </mesh>
+      )}
 
-      {/* Festival content ON the planet — scaled to fit on the sphere */}
+      {/* Festival content replaces the planet when selected — flat world at scale */}
       {isSelected && (
-        <group position={[0, size, 0]} scale={size / 25}>
+        <group>
           {festival.stages.length > 0 ? (
             <PlanetSurface festival={festival} />
           ) : (
@@ -126,17 +129,19 @@ export function Planet({
         </group>
       )}
 
-      <AtmosphereGlow
-        color={festival.planetColor}
-        size={size}
-        intensity={isLive ? 0.6 : 0.2}
-        pulse={isLive}
-      />
+      {!isSelected && (
+        <AtmosphereGlow
+          color={festival.planetColor}
+          size={size}
+          intensity={isLive ? 0.6 : 0.2}
+          pulse={isLive}
+        />
+      )}
 
-      {isLive && <LiveRings size={size} color={festival.planetColor} />}
+      {isLive && !isSelected && <LiveRings size={size} color={festival.planetColor} />}
 
-      {/* Always-visible planet label */}
-      <Billboard follow lockX={false} lockY={false} lockZ={false}>
+      {/* Planet label — hidden when selected */}
+      {!isSelected && <Billboard follow lockX={false} lockY={false} lockZ={false}>
         <Text
           position={[0, -size - 0.5, 0]}
           fontSize={0.35}
@@ -149,9 +154,9 @@ export function Planet({
         >
           {festival.name}
         </Text>
-      </Billboard>
+      </Billboard>}
 
-      {festival.comingSoon && (
+      {festival.comingSoon && !isSelected && (
         <Billboard follow lockX={false} lockY={false} lockZ={false}>
           <Text
             position={[0, size + 0.3, 0]}
@@ -166,7 +171,7 @@ export function Planet({
         </Billboard>
       )}
 
-      {hoveredPlanet === festival.slug && (
+      {hoveredPlanet === festival.slug && !isSelected && (
         <Html center position={[0, -size - 1.2, 0]} distanceFactor={15}>
           <div className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 min-w-[200px] pointer-events-none">
             <div className="flex items-center gap-2">
