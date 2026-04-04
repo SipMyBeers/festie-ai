@@ -25,7 +25,7 @@ interface FestieStore {
 }
 
 export const useFestieStore = create<FestieStore>((set) => ({
-  cameraMode: "hero",
+  cameraMode: "solar-system",
   setCameraMode: (mode) => set({ cameraMode: mode }),
   selectedPlanetSlug: null,
   hoveredPlanetSlug: null,

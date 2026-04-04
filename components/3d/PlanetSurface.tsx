@@ -237,24 +237,23 @@ function FoodCourt() {
           <pointLight position={[0, 1.5, 0.5]} color="#ffeecc" intensity={0.5} distance={3} decay={2} />
         </group>
       ))}
-      {/* People queuing at food stalls */}
-      {Array.from({ length: 15 }, (_, i) => {
-        const stallIdx = Math.floor(i / 4);
-        const queuePos = i % 4;
-        const stall = stalls[stallIdx % stalls.length];
-        return (
-          <group key={i} position={[stall.pos[0] + (Math.random() - 0.5) * 0.8, 0, stall.pos[2] + 1.2 + queuePos * 0.4]}>
-            <mesh position={[0, 0.22, 0]}>
-              <capsuleGeometry args={[0.05, 0.35, 4, 8]} />
-              <meshStandardMaterial color={["#2a2a3a", "#3a3050", "#4a3a3a"][i % 3]} roughness={0.9} />
-            </mesh>
-            <mesh position={[0, 0.47, 0]}>
-              <sphereGeometry args={[0.06, 6, 6]} />
-              <meshStandardMaterial color="#ddb89a" roughness={0.8} />
-            </mesh>
-          </group>
-        );
-      })}
+      {/* People queuing at food stalls - simple points */}
+      <points>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[new Float32Array(Array.from({ length: 12 * 3 }, (_, i) => {
+              const idx = Math.floor(i / 3);
+              const axis = i % 3;
+              const stall = stalls[idx % stalls.length];
+              if (axis === 0) return stall.pos[0] + (Math.random() - 0.5) * 0.8;
+              if (axis === 1) return 0.2 + Math.random() * 0.2;
+              return stall.pos[2] + 1.2 + Math.random() * 1.5;
+            })), 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial color="#ffddbb" size={0.15} transparent opacity={0.8} sizeAttenuation />
+      </points>
     </group>
   );
 }
@@ -322,30 +321,23 @@ function StringLights() {
 
 // ---- WANDERING CROWD ----
 function WanderingCrowd() {
-  const people = useMemo(() => {
-    return Array.from({ length: 80 }, () => ({
-      x: (Math.random() - 0.5) * 30,
-      z: (Math.random() - 0.2) * 25,
-      height: 0.35 + Math.random() * 0.2,
-      bodyColor: ["#2a2a3a", "#3a3050", "#4a3a3a", "#3a4a4a", "#503a3a", "#2a3a4a", "#4a4a3a", "#3a2a4a"][Math.floor(Math.random() * 8)],
-    }));
+  const positions = useMemo(() => {
+    const arr = new Float32Array(100 * 3);
+    for (let i = 0; i < 100; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 30;
+      arr[i * 3 + 1] = 0.15 + Math.random() * 0.3;
+      arr[i * 3 + 2] = (Math.random() - 0.2) * 25;
+    }
+    return arr;
   }, []);
 
   return (
-    <group>
-      {people.map((p, i) => (
-        <group key={i} position={[p.x, 0, p.z]}>
-          <mesh position={[0, p.height * 0.5, 0]}>
-            <capsuleGeometry args={[0.05, p.height, 4, 8]} />
-            <meshStandardMaterial color={p.bodyColor} roughness={0.9} />
-          </mesh>
-          <mesh position={[0, p.height + 0.08, 0]}>
-            <sphereGeometry args={[0.06, 6, 6]} />
-            <meshStandardMaterial color="#ddb89a" roughness={0.8} />
-          </mesh>
-        </group>
-      ))}
-    </group>
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial color="#ffddbb" size={0.15} transparent opacity={0.7} sizeAttenuation />
+    </points>
   );
 }
 

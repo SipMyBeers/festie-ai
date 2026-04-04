@@ -5,33 +5,6 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useFestieStore } from "@/lib/store";
 
-const KEYFRAMES = {
-  raveStart: {
-    position: new THREE.Vector3(0, 1.6, 3),
-    lookAt: new THREE.Vector3(0, 2.5, -8),
-  },
-  risingAbove: {
-    position: new THREE.Vector3(0, 15, 10),
-    lookAt: new THREE.Vector3(0, 0, -2),
-  },
-  planetReveal: {
-    position: new THREE.Vector3(0, 30, 40),
-    lookAt: new THREE.Vector3(0, 0, 0),
-  },
-  solarSystem: {
-    position: new THREE.Vector3(0, 20, 60),
-    lookAt: new THREE.Vector3(0, 0, 0),
-  },
-};
-
-function lerp3(a: THREE.Vector3, b: THREE.Vector3, t: number): THREE.Vector3 {
-  return new THREE.Vector3(
-    THREE.MathUtils.lerp(a.x, b.x, t),
-    THREE.MathUtils.lerp(a.y, b.y, t),
-    THREE.MathUtils.lerp(a.z, b.z, t)
-  );
-}
-
 function smoothstep(t: number): number {
   return t * t * (3 - 2 * t);
 }
@@ -42,14 +15,12 @@ export function ScrollCamera() {
   const setCameraMode = useFestieStore((s) => s.setCameraMode);
   const selectedPlanetSlug = useFestieStore((s) => s.selectedPlanetSlug);
   const planetPositions = useFestieStore((s) => s.planetPositions);
-  const lookAtTarget = useRef(new THREE.Vector3(0, 2.5, -8));
+  const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
   const arrivalProgress = useRef(0);
 
-  const scrollOffset = useRef(0);
-
-  // Drag orbit state
+  // Orbit state
   const orbitAngle = useRef(0);
-  const orbitTilt = useRef(0.3);
+  const orbitTilt = useRef(0.35);
   const orbitDistance = useRef(60);
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
@@ -60,6 +31,11 @@ export function ScrollCamera() {
   const returnStartPos = useRef(new THREE.Vector3());
   const returnStartLookAt = useRef(new THREE.Vector3());
 
+  // Start in solar-system mode
+  useEffect(() => {
+    setCameraMode("solar-system");
+  }, [setCameraMode]);
+
   useEffect(() => {
     const canvas = gl.domElement;
 
@@ -67,11 +43,8 @@ export function ScrollCamera() {
       e.preventDefault();
       const mode = useFestieStore.getState().cameraMode;
 
-      if (mode === "hero" || (mode === "solar-system" && scrollOffset.current < 0.75)) {
-        const delta = e.deltaY * 0.0003;
-        scrollOffset.current = Math.max(0, Math.min(1, scrollOffset.current + delta));
-      } else if (mode === "solar-system") {
-        orbitDistance.current = Math.max(25, Math.min(120, orbitDistance.current + e.deltaY * 0.05));
+      if (mode === "solar-system") {
+        orbitDistance.current = Math.max(20, Math.min(120, orbitDistance.current + e.deltaY * 0.05));
       } else if (mode === "planet-surface") {
         orbitDistance.current = Math.max(10, Math.min(60, orbitDistance.current + e.deltaY * 0.03));
       }
@@ -113,6 +86,7 @@ export function ScrollCamera() {
     };
   }, [gl.domElement]);
 
+  // Reset when planet changes
   useEffect(() => {
     arrivalProgress.current = 0;
     if (selectedPlanetSlug) {
@@ -122,49 +96,27 @@ export function ScrollCamera() {
     }
   }, [selectedPlanetSlug]);
 
+  // Handle returning to solar system
   useEffect(() => {
-    if ((cameraMode === "hero" || cameraMode === "solar-system") && !selectedPlanetSlug) {
+    if (cameraMode === "solar-system" && !selectedPlanetSlug) {
       isReturning.current = true;
       returnProgress.current = 0;
       returnStartPos.current.copy(camera.position);
       returnStartLookAt.current.copy(lookAtTarget.current);
       orbitDistance.current = 60;
-      orbitTilt.current = 0.3;
+      orbitTilt.current = 0.35;
     }
   }, [cameraMode, selectedPlanetSlug, camera]);
 
   useFrame(() => {
-    if (cameraMode === "hero" || cameraMode === "solar-system") {
-      const offset = scrollOffset.current;
-      let position: THREE.Vector3;
-      let lookAt: THREE.Vector3;
-
-      if (offset < 0.25) {
-        const t = smoothstep(offset / 0.25);
-        position = lerp3(KEYFRAMES.raveStart.position, KEYFRAMES.risingAbove.position, t);
-        lookAt = lerp3(KEYFRAMES.raveStart.lookAt, KEYFRAMES.risingAbove.lookAt, t);
-        if (cameraMode !== "hero") setCameraMode("hero");
-      } else if (offset < 0.5) {
-        const t = smoothstep((offset - 0.25) / 0.25);
-        position = lerp3(KEYFRAMES.risingAbove.position, KEYFRAMES.planetReveal.position, t);
-        lookAt = lerp3(KEYFRAMES.risingAbove.lookAt, KEYFRAMES.planetReveal.lookAt, t);
-        if (cameraMode !== "hero") setCameraMode("hero");
-      } else if (offset < 0.75) {
-        const t = smoothstep((offset - 0.5) / 0.25);
-        position = lerp3(KEYFRAMES.planetReveal.position, KEYFRAMES.solarSystem.position, t);
-        lookAt = lerp3(KEYFRAMES.planetReveal.lookAt, KEYFRAMES.solarSystem.lookAt, t);
-        if (cameraMode !== "solar-system") setCameraMode("solar-system");
-      } else {
-        // Full orbit mode
-        const d = orbitDistance.current;
-        position = new THREE.Vector3(
-          Math.sin(orbitAngle.current) * Math.cos(orbitTilt.current) * d,
-          Math.sin(orbitTilt.current) * d,
-          Math.cos(orbitAngle.current) * Math.cos(orbitTilt.current) * d
-        );
-        lookAt = new THREE.Vector3(0, 0, 0);
-        if (cameraMode !== "solar-system") setCameraMode("solar-system");
-      }
+    if (cameraMode === "solar-system" || cameraMode === "hero") {
+      const d = orbitDistance.current;
+      const position = new THREE.Vector3(
+        Math.sin(orbitAngle.current) * Math.cos(orbitTilt.current) * d,
+        Math.sin(orbitTilt.current) * d,
+        Math.cos(orbitAngle.current) * Math.cos(orbitTilt.current) * d
+      );
+      const lookAt = new THREE.Vector3(0, 0, 0);
 
       if (isReturning.current) {
         returnProgress.current = Math.min(returnProgress.current + 0.025, 1);

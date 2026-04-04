@@ -175,55 +175,36 @@ export function Stage({ stage, currentPerformance, nextPerformance }: StageProps
 }
 
 function StageCrowd({ color, count = 50 }: { color: string; count?: number }) {
-  const people = useMemo(() => {
-    return Array.from({ length: count }, (_, i) => {
+  const ref = useRef<THREE.Points>(null);
+
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
       const angle = (Math.random() - 0.5) * Math.PI * 0.7;
       const dist = 1.5 + Math.random() * 2.5;
-      return {
-        x: Math.sin(angle) * dist,
-        z: Math.cos(angle) * dist,
-        height: 0.4 + Math.random() * 0.25,
-        phase: Math.random() * Math.PI * 2,
-        shade: Math.random() * 0.3,
-      };
-    });
+      arr[i * 3] = Math.sin(angle) * dist;
+      arr[i * 3 + 1] = 0.15 + Math.random() * 0.4;
+      arr[i * 3 + 2] = Math.cos(angle) * dist;
+    }
+    return arr;
   }, [count]);
-
-  return (
-    <group>
-      {people.map((p, i) => (
-        <CrowdPerson key={i} x={p.x} z={p.z} height={p.height} phase={p.phase} shade={p.shade} color={color} />
-      ))}
-    </group>
-  );
-}
-
-function CrowdPerson({ x, z, height, phase, shade, color }: {
-  x: number; z: number; height: number; phase: number; shade: number; color: string;
-}) {
-  const ref = useRef<THREE.Group>(null);
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    ref.current.position.y = Math.sin(clock.elapsedTime * 2.5 + phase) * 0.04;
+    const arr = ref.current.geometry.attributes.position.array as Float32Array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3 + 1] = 0.15 + Math.sin(clock.elapsedTime * 2.5 + i * 0.7) * 0.06 + Math.random() * 0.02;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
   });
 
-  // Mix between warm skin-like tones and the stage color
-  const bodyColor = shade > 0.2 ? "#2a2a3a" : shade > 0.1 ? "#3a3a4a" : "#4a4a5a";
-
   return (
-    <group ref={ref} position={[x, 0, z]}>
-      {/* Body - thin tall capsule */}
-      <mesh position={[0, height * 0.5, 0]}>
-        <capsuleGeometry args={[0.06, height, 4, 8]} />
-        <meshStandardMaterial color={bodyColor} roughness={0.9} />
-      </mesh>
-      {/* Head */}
-      <mesh position={[0, height + 0.1, 0]}>
-        <sphereGeometry args={[0.07, 8, 8]} />
-        <meshStandardMaterial color="#ddb89a" roughness={0.8} />
-      </mesh>
-    </group>
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial color="#ffddbb" size={0.18} transparent opacity={0.85} sizeAttenuation />
+    </points>
   );
 }
 

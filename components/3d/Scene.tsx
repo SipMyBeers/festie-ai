@@ -5,7 +5,6 @@ import { Preload, Stars } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Suspense, useEffect } from "react";
 import { useFestieStore } from "@/lib/store";
-import { HeroRave } from "./HeroRave";
 import { SolarSystem } from "./SolarSystem";
 import { ScrollCamera } from "./ScrollCamera";
 import { PlanetSurface } from "./PlanetSurface";
@@ -56,7 +55,6 @@ function SceneContent() {
     <>
       <ScrollCamera />
       <ambientLight intensity={0.05} />
-      <HeroRave />
       <SolarSystem />
       <ActivePlanetSurface />
       <Stars
@@ -84,7 +82,7 @@ export function Scene() {
   return (
     <Canvas
       className="!fixed inset-0"
-      camera={{ position: [0, 1.6, 3], fov: 70, near: 0.1, far: 1000 }}
+      camera={{ position: [0, 30, 60], fov: 60, near: 0.1, far: 1000 }}
       dpr={[1, 2]}
       gl={{
         antialias: true,

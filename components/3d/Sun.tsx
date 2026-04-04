@@ -14,15 +14,16 @@ export function Sun() {
       meshRef.current.rotation.y = clock.elapsedTime * 0.05;
     }
     if (glowRef.current) {
-      const scale = 1 + Math.sin(clock.elapsedTime * 0.5) * 0.05;
+      const scale = 1 + Math.sin(clock.elapsedTime * 0.5) * 0.03;
       glowRef.current.scale.setScalar(scale);
     }
   });
 
   return (
     <group>
+      {/* Smaller sun */}
       <mesh ref={meshRef}>
-        <sphereGeometry args={[2, 64, 64]} />
+        <sphereGeometry args={[1, 32, 32]} />
         <meshStandardMaterial
           color="#fbbf24"
           emissive="#f97316"
@@ -31,39 +32,29 @@ export function Sun() {
         />
       </mesh>
 
-      <mesh ref={glowRef} scale={1.3}>
-        <sphereGeometry args={[2, 32, 32]} />
+      {/* Glow */}
+      <mesh ref={glowRef} scale={1.4}>
+        <sphereGeometry args={[1, 16, 16]} />
         <meshBasicMaterial
           color="#f97316"
           transparent
-          opacity={0.15}
+          opacity={0.12}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           side={THREE.BackSide}
         />
       </mesh>
 
-      <mesh scale={1.6}>
-        <sphereGeometry args={[2, 32, 32]} />
-        <meshBasicMaterial
-          color="#fbbf24"
-          transparent
-          opacity={0.05}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          side={THREE.BackSide}
-        />
-      </mesh>
-
-      <pointLight intensity={5} color="#fff8e7" distance={100} decay={2} />
+      <pointLight intensity={3} color="#fff8e7" distance={80} decay={2} />
 
       <Text
-        position={[0, 3.5, 0]}
-        fontSize={0.8}
+        position={[0, 2, 0]}
+        fontSize={0.5}
         color="#ffffff"
         anchorX="center"
         anchorY="middle"
         font="/fonts/SpaceGrotesk-Bold.ttf"
+        fillOpacity={0.8}
       >
         FESTIE.AI
       </Text>
