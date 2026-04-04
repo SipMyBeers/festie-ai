@@ -213,10 +213,10 @@ function ArtInstallations() {
 function FoodCourt() {
   // Row of food stalls between stages
   const stalls = useMemo(() => [
-    { pos: [-4, 0, 8] as [number, number, number], color: "#f97316", name: "Tacos" },
-    { pos: [-2, 0, 8] as [number, number, number], color: "#ef4444", name: "Pizza" },
-    { pos: [0, 0, 8] as [number, number, number], color: "#22c55e", name: "Vegan" },
-    { pos: [2, 0, 8] as [number, number, number], color: "#3b82f6", name: "Drinks" },
+    { pos: [-3, 0, 3] as [number, number, number], color: "#f97316", name: "Tacos" },
+    { pos: [-1, 0, 3] as [number, number, number], color: "#ef4444", name: "Pizza" },
+    { pos: [1, 0, 3] as [number, number, number], color: "#22c55e", name: "Vegan" },
+    { pos: [3, 0, 3] as [number, number, number], color: "#3b82f6", name: "Drinks" },
   ], []);
 
   return (
