@@ -27,6 +27,7 @@ const COACHELLA_QUICK_REPLIES = [
   { label: "🍕 Food options", value: "whats good to eat" },
   { label: "🅿️ Parking info", value: "where do i park" },
   { label: "🌡️ Weather", value: "is it gonna be hot" },
+  { label: "📱 Get Festie Offline ($4.99)", value: "get-festie" },
 ];
 
 const FESTIVAL_RESPONSES: Record<string, string> = {
@@ -80,6 +81,11 @@ export function ChatWidget() {
   }, [isOpen]);
 
   const handleButtonClick = async (value: string) => {
+    if (value === "get-festie") {
+      window.location.href = "/get-festie";
+      return;
+    }
+
     const button =
       FESTIVAL_OPTIONS.find((f) => f.value === value) ||
       COACHELLA_QUICK_REPLIES.find((q) => q.value === value);
