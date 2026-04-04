@@ -9,6 +9,7 @@ import { HeroRave } from "./HeroRave";
 import { SolarSystem } from "./SolarSystem";
 import { ScrollCamera } from "./ScrollCamera";
 import { PlanetSurface } from "./PlanetSurface";
+import { GenericParty } from "./GenericParty";
 import { getFestivalBySlug } from "@/lib/data/festivals";
 
 function ActivePlanetSurface() {
@@ -25,7 +26,11 @@ function ActivePlanetSurface() {
 
   return (
     <group position={pos}>
-      <PlanetSurface festival={festival} />
+      {festival.stages.length > 0 ? (
+        <PlanetSurface festival={festival} />
+      ) : (
+        <GenericParty festival={festival} />
+      )}
     </group>
   );
 }
