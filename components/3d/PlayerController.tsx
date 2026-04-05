@@ -32,6 +32,7 @@ export function PlayerController() {
   // Mouse/touch drag for camera rotation
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
+  const lastPinchDist = useRef(0);
 
   const keys = useRef<Keys>({
     forward: false,
@@ -95,6 +96,30 @@ export function PlayerController() {
       cameraDistance.current = Math.max(3, Math.min(15, cameraDistance.current + e.deltaY * 0.01));
     };
 
+    // Pinch-to-zoom on mobile
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastPinchDist.current = Math.sqrt(dx * dx + dy * dy);
+      }
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (lastPinchDist.current > 0) {
+          const delta = lastPinchDist.current - dist;
+          cameraDistance.current = Math.max(3, Math.min(15, cameraDistance.current + delta * 0.03));
+        }
+        lastPinchDist.current = dist;
+      }
+    };
+    const handleTouchEnd = () => {
+      lastPinchDist.current = 0;
+    };
+
     const canvas = document.querySelector("canvas");
     if (canvas) {
       canvas.addEventListener("pointerdown", handlePointerDown);
@@ -102,6 +127,9 @@ export function PlayerController() {
       canvas.addEventListener("pointerup", handlePointerUp);
       canvas.addEventListener("pointerleave", handlePointerUp);
       canvas.addEventListener("wheel", handleWheel, { passive: false });
+      canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+      canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
+      canvas.addEventListener("touchend", handleTouchEnd);
     }
     return () => {
       if (canvas) {
@@ -110,6 +138,9 @@ export function PlayerController() {
         canvas.removeEventListener("pointerup", handlePointerUp);
         canvas.removeEventListener("pointerleave", handlePointerUp);
         canvas.removeEventListener("wheel", handleWheel);
+        canvas.removeEventListener("touchstart", handleTouchStart);
+        canvas.removeEventListener("touchmove", handleTouchMove);
+        canvas.removeEventListener("touchend", handleTouchEnd);
       }
     };
   }, []);

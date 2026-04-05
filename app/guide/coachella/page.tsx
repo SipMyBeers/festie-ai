@@ -6,6 +6,7 @@ import { coachellaStages } from "@/lib/data/coachella-lineup";
 import { FESTIVAL_INFO } from "@/lib/sms/knowledge";
 import { ServiceWorkerRegister } from "../sw-register";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { InstallPrompt } from "@/components/ui/InstallPrompt";
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-US", {
@@ -142,6 +143,7 @@ export default function GuidePage() {
       </div>
 
       <BottomNav />
+      <InstallPrompt />
     </div>
   );
 }
