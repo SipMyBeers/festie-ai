@@ -1,6 +1,4 @@
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const MODEL = process.env.OLLAMA_MODEL || "festie-coachella";
-
+import { generateResponse } from "./responder";
 import {
   FESTIVAL_INFO,
   WATER_STATIONS,
@@ -9,6 +7,9 @@ import {
   FAQ,
   coachellaStages,
 } from "./knowledge";
+
+const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
+const MODEL = process.env.OLLAMA_MODEL || "festie-coachella";
 
 function buildSystemPrompt(): string {
   const stageSchedule = coachellaStages
@@ -68,12 +69,13 @@ RULES:
 - If someone asks what's playing NOW, check the current time against the schedule.
 - If you don't know something specific, say so honestly and suggest what you CAN help with.
 - Never make up information. Only use the data provided above.
+- If an artist is NOT in the schedule above, say you don't see them on the lineup.
 - Current time context will be provided with each message.`;
 }
 
 const SYSTEM_PROMPT = buildSystemPrompt();
 
-interface OllamaMessage {
+export interface OllamaMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
@@ -95,7 +97,7 @@ export async function generateOllamaResponse(
 
   const messages: OllamaMessage[] = [
     { role: "system", content: SYSTEM_PROMPT },
-    ...conversationHistory.slice(-6), // Keep last 3 exchanges for context
+    ...conversationHistory.slice(-6),
     { role: "user", content: `[Current time: ${now}]\n\n${userMessage}` },
   ];
 
@@ -116,19 +118,13 @@ export async function generateOllamaResponse(
 
     if (!response.ok) {
       console.error("Ollama error:", response.status, await response.text());
-      return fallbackResponse(userMessage);
+      return generateResponse(userMessage);
     }
 
     const data = await response.json();
-    return data.message?.content?.trim() || fallbackResponse(userMessage);
+    return data.message?.content?.trim() || generateResponse(userMessage);
   } catch (error) {
     console.error("Ollama connection error:", error);
-    return fallbackResponse(userMessage);
+    return generateResponse(userMessage);
   }
-}
-
-function fallbackResponse(msg: string): string {
-  // If Ollama is down, fall back to the rule-based responder
-  const { generateResponse } = require("./responder");
-  return generateResponse(msg);
 }

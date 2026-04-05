@@ -5,15 +5,11 @@ import { FestieAvatar } from "@/components/ui/FestieAvatar";
 
 export default function GetFestiePage() {
   const handlePurchase = async () => {
-    // TODO: Stripe checkout — for now, just redirect to the guide
-    // Once Stripe is configured, this will create a Checkout Session
-    // and redirect to Stripe's hosted checkout page
     if (process.env.NEXT_PUBLIC_STRIPE_ENABLED === "true") {
       const res = await fetch("/api/checkout", { method: "POST" });
       const { url } = await res.json();
       if (url) window.location.href = url;
     } else {
-      // Free access during beta / before Stripe is configured
       window.location.href = "/guide/coachella";
     }
   };

@@ -5,6 +5,9 @@ import Link from "next/link";
 import { Festival } from "@/lib/types";
 import { Timeline } from "@/components/ui/Timeline";
 import { StagePanel } from "@/components/ui/StagePanel";
+import { ExploreToggle } from "@/components/ui/ExploreToggle";
+import { ExploreHint } from "@/components/ui/ExploreHint";
+import { VirtualJoystick } from "@/components/ui/VirtualJoystick";
 
 const PlanetScene = dynamic(
   () => import("@/components/3d/PlanetScene").then((m) => m.PlanetScene),
@@ -47,6 +50,9 @@ export function PlanetPageClient({ festival }: { festival: Festival }) {
 
       <StagePanel festival={festival} />
       <Timeline festival={festival} />
+      <ExploreToggle />
+      <ExploreHint />
+      <VirtualJoystick />
     </main>
   );
 }

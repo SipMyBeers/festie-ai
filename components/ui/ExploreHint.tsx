@@ -1,14 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFestieStore } from "@/lib/store";
+
+function getIsMobile() {
+  return typeof window !== "undefined" &&
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+}
+
+function subscribeNoop(cb: () => void) {
+  return () => {};
+}
 
 export function ExploreHint() {
   const cameraMode = useFestieStore((s) => s.cameraMode);
   const [show, setShow] = useState(true);
+  const isMobile = useSyncExternalStore(subscribeNoop, getIsMobile, () => false);
 
-  // Auto-hide after 5 seconds
   useEffect(() => {
     if (cameraMode === "exploring") {
       setShow(true);
@@ -30,7 +39,9 @@ export function ExploreHint() {
         >
           <div className="bg-black/80 backdrop-blur-md border border-white/10 rounded-xl px-5 py-3 text-center">
             <p className="text-white text-sm font-bold" style={{ fontFamily: "var(--font-display)" }}>
-              WASD to move — Space to jump — Drag to look around
+              {isMobile
+                ? "Joystick to move — Tap JUMP — Drag right side to look"
+                : "WASD to move — Space to jump — Drag to look around"}
             </p>
           </div>
         </motion.div>

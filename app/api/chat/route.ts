@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateResponse } from "@/lib/sms/responder";
-
-// Try Ollama if available, fall back to rule-based
-async function getResponse(message: string, history: { role: string; content: string }[]): Promise<string> {
-  if (process.env.OLLAMA_URL) {
-    try {
-      const { generateOllamaResponse } = await import("@/lib/sms/ollama");
-      return await generateOllamaResponse(message, history as any);
-    } catch {
-      return generateResponse(message);
-    }
-  }
-  return generateResponse(message);
-}
+import { generateOllamaResponse, type OllamaMessage } from "@/lib/sms/ollama";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +10,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message required" }, { status: 400 });
     }
 
-    const response = await getResponse(message, history);
+    // Same hybrid approach as SMS: rule-based first, Gemma for open-ended
+    const ruleResponse = generateResponse(message);
+    const isFallback = ruleResponse.includes("I'm not sure about that");
+
+    let response: string;
+
+    if (isFallback && process.env.OLLAMA_URL) {
+      const ollamaHistory: OllamaMessage[] = history.map(
+        (m: { role: string; content: string }) => ({
+          role: m.role === "user" ? "user" as const : "assistant" as const,
+          content: m.content,
+        })
+      );
+      response = await generateOllamaResponse(message, ollamaHistory);
+    } else {
+      response = ruleResponse;
+    }
+
     return NextResponse.json({ response });
   } catch (error) {
     console.error("Chat error:", error);

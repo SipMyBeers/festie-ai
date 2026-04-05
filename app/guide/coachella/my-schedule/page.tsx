@@ -17,7 +17,11 @@ export default function MySchedulePage() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setSavedIds(JSON.parse(localStorage.getItem("festie-saved-acts") || "[]"));
+    try {
+      setSavedIds(JSON.parse(localStorage.getItem("festie-saved-acts") || "[]"));
+    } catch {
+      setSavedIds([]);
+    }
   }, []);
 
   const saved = coachellaStages

@@ -95,7 +95,7 @@ export function ChatWidget() {
       role: "user",
       content: button?.label || value,
     };
-    setMessages((prev) => (prev.map((m) => ({ ...m, buttons: undefined as Message["buttons"] })) as Message[]).concat(userMsg));
+    setMessages((prev) => [...prev.map((m): Message => ({ ...m, buttons: undefined })), userMsg]);
 
     if (FESTIVAL_RESPONSES[value]) {
       setIsTyping(true);
@@ -162,7 +162,7 @@ export function ChatWidget() {
     if (!text || isTyping) return;
 
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: text };
-    setMessages((prev) => (prev.map((m) => ({ ...m, buttons: undefined as Message["buttons"] })) as Message[]).concat(userMsg));
+    setMessages((prev) => [...prev.map((m): Message => ({ ...m, buttons: undefined })), userMsg]);
     setInput("");
     await sendToAPI(text);
   };

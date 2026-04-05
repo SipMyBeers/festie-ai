@@ -7,6 +7,8 @@ import { PlanetOverlay } from "@/components/ui/PlanetOverlay";
 import { ChatWidget } from "@/components/ui/ChatWidget";
 import { ExploreToggle } from "@/components/ui/ExploreToggle";
 import { ExploreHint } from "@/components/ui/ExploreHint";
+import { VirtualJoystick } from "@/components/ui/VirtualJoystick";
+import { Onboarding } from "@/components/ui/Onboarding";
 
 const Scene = dynamic(
   () => import("@/components/3d/Scene").then((m) => m.Scene),
@@ -22,7 +24,9 @@ export default function Home() {
       <PlanetOverlay />
       <ExploreToggle />
       <ExploreHint />
+      <VirtualJoystick />
       <ChatWidget />
+      <Onboarding />
     </main>
   );
 }

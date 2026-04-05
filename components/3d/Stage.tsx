@@ -34,7 +34,7 @@ export function Stage({ stage, currentPerformance, nextPerformance }: StageProps
     }
   });
 
-  const handleClick = (e: any) => {
+  const handleClick = (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
     setSelectedStage(isSelected ? null : stage.id);
   };

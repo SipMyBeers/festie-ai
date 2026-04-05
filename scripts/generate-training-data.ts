@@ -68,7 +68,6 @@ for (const stage of coachellaStages) {
 
 // --- Day schedule questions ---
 const days = ["Friday", "Saturday", "Sunday"];
-const dateMap: Record<string, string> = { Friday: "2026-04-10", Saturday: "2026-04-11", Sunday: "2026-04-12" };
 
 for (const day of days) {
   const acts: string[] = [];

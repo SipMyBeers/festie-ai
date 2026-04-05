@@ -146,12 +146,19 @@ function SaveButton({ perfId }: { perfId: string }) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const savedActs = JSON.parse(localStorage.getItem("festie-saved-acts") || "[]");
-    setSaved(savedActs.includes(perfId));
+    try {
+      const savedActs = JSON.parse(localStorage.getItem("festie-saved-acts") || "[]");
+      setSaved(savedActs.includes(perfId));
+    } catch {
+      setSaved(false);
+    }
   }, [perfId]);
 
   const toggle = () => {
-    const savedActs: string[] = JSON.parse(localStorage.getItem("festie-saved-acts") || "[]");
+    let savedActs: string[] = [];
+    try {
+      savedActs = JSON.parse(localStorage.getItem("festie-saved-acts") || "[]");
+    } catch { /* corrupted, start fresh */ }
     if (saved) {
       const updated = savedActs.filter((id: string) => id !== perfId);
       localStorage.setItem("festie-saved-acts", JSON.stringify(updated));

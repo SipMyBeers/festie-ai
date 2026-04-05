@@ -1,15 +1,15 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import * as THREE from "three";
-import { useFestieStore } from "@/lib/store";
+import { getJoystickInput, getJumpRequested } from "@/components/ui/VirtualJoystick";
 
 const SPEED = 8;
 const JUMP_FORCE = 6;
 const GRAVITY = -15;
-const GROUND_Y = 0.4; // Character bottom at ground level
+const GROUND_Y = 0.4;
 
 interface Keys {
   forward: boolean;
@@ -29,7 +29,7 @@ export function PlayerController() {
   const cameraTilt = useRef(0.3);
   const cameraDistance = useRef(6);
 
-  // Mouse drag for camera rotation
+  // Mouse/touch drag for camera rotation
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
 
@@ -70,9 +70,14 @@ export function PlayerController() {
     };
   }, []);
 
-  // Mouse drag for camera orbit around player
+  // Touch drag on right side of screen for camera orbit
   useEffect(() => {
     const handlePointerDown = (e: PointerEvent) => {
+      // On touch devices, only use right half of screen for camera control
+      // Left half is reserved for the virtual joystick
+      const isTouchDevice = e.pointerType === "touch";
+      if (isTouchDevice && e.clientX < window.innerWidth / 2) return;
+
       isDragging.current = true;
       lastMouse.current = { x: e.clientX, y: e.clientY };
     };
@@ -111,23 +116,30 @@ export function PlayerController() {
 
   useFrame((_, delta) => {
     if (!playerRef.current) return;
-    const dt = Math.min(delta, 0.05); // Cap delta to avoid huge jumps
+    const dt = Math.min(delta, 0.05);
 
-    // Movement direction relative to camera angle
+    // Combine keyboard + virtual joystick input
+    const joystick = getJoystickInput();
     const moveDir = new THREE.Vector3(0, 0, 0);
+
+    // Keyboard
     if (keys.current.forward) moveDir.z -= 1;
     if (keys.current.backward) moveDir.z += 1;
     if (keys.current.left) moveDir.x -= 1;
     if (keys.current.right) moveDir.x += 1;
 
+    // Joystick (additive — if both are used, keyboard wins by magnitude)
+    if (Math.abs(joystick.x) > 0.1 || Math.abs(joystick.y) > 0.1) {
+      moveDir.x += joystick.x;
+      moveDir.z -= joystick.y; // joystick Y+ = forward = -Z
+    }
+
     if (moveDir.length() > 0) {
       moveDir.normalize();
-      // Rotate movement direction by camera angle
       const rotatedDir = moveDir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraAngle.current);
       playerPos.current.x += rotatedDir.x * SPEED * dt;
       playerPos.current.z += rotatedDir.z * SPEED * dt;
 
-      // Face the direction of movement
       const targetAngle = Math.atan2(rotatedDir.x, rotatedDir.z);
       playerRef.current.rotation.y = THREE.MathUtils.lerp(
         playerRef.current.rotation.y,
@@ -136,8 +148,9 @@ export function PlayerController() {
       );
     }
 
-    // Jump
-    if (keys.current.jump && isGrounded.current) {
+    // Jump — keyboard or virtual button
+    const virtualJump = getJumpRequested();
+    if ((keys.current.jump || virtualJump) && isGrounded.current) {
       velocityY.current = JUMP_FORCE;
       isGrounded.current = false;
     }
@@ -161,7 +174,6 @@ export function PlayerController() {
       playerPos.current.z *= maxDist / dist;
     }
 
-    // Update player mesh position
     playerRef.current.position.copy(playerPos.current);
 
     // Camera follows player — third person
