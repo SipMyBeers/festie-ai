@@ -20,16 +20,16 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "Festie — Coachella 2026 Guide",
+              name: "Festie AI — Offline Festival Bot",
               description:
-                "Offline festival guide with full schedule, venue map, FAQ, and saved acts",
+                "AI festival guide powered by Gemma 4, runs 100% on your phone. Includes offline schedule, venue map, FAQ, and saved acts.",
             },
             unit_amount: 499, // $4.99
           },
           quantity: 1,
         },
       ],
-      success_url: `${request.nextUrl.origin}/guide/coachella?purchased=true`,
+      success_url: `${request.nextUrl.origin}/guide/coachella/ai?purchased=true`,
       cancel_url: `${request.nextUrl.origin}/get-festie`,
     });
 

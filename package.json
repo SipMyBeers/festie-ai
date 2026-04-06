@@ -12,6 +12,7 @@
     "test:integration": "OLLAMA_URL=http://localhost:11434 OLLAMA_MODEL=gemma3:4b vitest run lib/sms/__tests__/ollama.integration.test.ts"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.0.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",

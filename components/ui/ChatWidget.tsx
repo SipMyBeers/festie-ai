@@ -27,7 +27,7 @@ const COACHELLA_QUICK_REPLIES = [
   { label: "🍕 Food options", value: "whats good to eat" },
   { label: "🅿️ Parking info", value: "where do i park" },
   { label: "🌡️ Weather", value: "is it gonna be hot" },
-  { label: "📱 Get Festie Offline ($4.99)", value: "get-festie" },
+  { label: "🤖 Get Festie AI Offline ($4.99)", value: "get-festie" },
 ];
 
 const FESTIVAL_RESPONSES: Record<string, string> = {

@@ -3,15 +3,11 @@
 import Link from "next/link";
 import { FestieAvatar } from "@/components/ui/FestieAvatar";
 
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQaEX0BY5pB3G88ww3F602";
+
 export default function GetFestiePage() {
-  const handlePurchase = async () => {
-    if (process.env.NEXT_PUBLIC_STRIPE_ENABLED === "true") {
-      const res = await fetch("/api/checkout", { method: "POST" });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } else {
-      window.location.href = "/guide/coachella";
-    }
+  const handlePurchase = () => {
+    window.location.href = STRIPE_PAYMENT_LINK;
   };
 
   return (
@@ -41,23 +37,26 @@ export default function GetFestiePage() {
           className="text-4xl md:text-5xl font-bold mb-4"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Take Festie to the{" "}
+          Your{" "}
           <span className="bg-gradient-to-r from-[#7c3aed] via-[#ec4899] to-[#f97316] bg-clip-text text-transparent">
-            festival
+            AI festival buddy
           </span>
+          {" "}that works offline
         </h1>
-        <p className="text-white/60 text-lg mb-8">
-          Your pocket festival guide that works without WiFi or cell service. Built for Coachella
-          2026.
+        <p className="text-white/60 text-lg mb-2">
+          Festie runs Gemma 4 AI directly on your phone. No WiFi, no cell service, no problem.
+        </p>
+        <p className="text-white/40 text-sm mb-8">
+          Ask anything about Coachella — stages, food, water, set times, tips — and get instant answers even in the desert.
         </p>
         <button
           onClick={handlePurchase}
           className="bg-gradient-to-r from-[#7c3aed] to-[#ec4899] text-white font-bold text-lg px-8 py-4 rounded-full hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Get Festie for Coachella — $4.99
+          Get Festie AI — $4.99
         </button>
-        <p className="text-white/30 text-xs mt-3">One-time purchase. No subscription. No ads.</p>
+        <p className="text-white/30 text-xs mt-3">One-time purchase. No subscription. No data leaves your phone.</p>
       </div>
 
       {/* What you get */}
@@ -70,6 +69,11 @@ export default function GetFestiePage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
+            {
+              emoji: "🤖",
+              title: "AI Festival Guide",
+              desc: "Ask Festie anything — powered by Gemma 4 running 100% on your phone. No internet needed.",
+            },
             {
               emoji: "📋",
               title: "Full Schedule",
@@ -91,14 +95,9 @@ export default function GetFestiePage() {
               desc: "Build your perfect day. Save acts, see conflicts, never miss your must-sees.",
             },
             {
-              emoji: "❓",
-              title: "Festival FAQ",
-              desc: "Parking, weather, what to bring, camping, rideshare tips. Everything you'd Google.",
-            },
-            {
-              emoji: "📱",
-              title: "Add to Home Screen",
-              desc: "Opens like a real app. No app store download. Installs in 2 seconds.",
+              emoji: "🔒",
+              title: "100% Private",
+              desc: "No cloud. No tracking. No data leaves your device. Ever. Runs entirely on-device.",
             },
           ].map((item) => (
             <div key={item.title} className="bg-white/5 border border-white/10 rounded-xl p-5">
@@ -125,21 +124,21 @@ export default function GetFestiePage() {
         </h2>
         <div className="space-y-6">
           {[
-            { step: "1", title: "Buy Festie", desc: "One tap. $4.99. Instant access." },
+            { step: "1", title: "Buy Festie AI", desc: "One tap. $4.99. Instant access." },
             {
               step: "2",
-              title: "Open on your phone",
-              desc: "We'll text you a link (or just visit festie.ai/guide/coachella on WiFi before the fest).",
+              title: "Download the AI on WiFi",
+              desc: "~500MB one-time download. Festie AI gets cached on your phone forever.",
             },
             {
               step: "3",
               title: "Add to Home Screen",
-              desc: "Tap the share button → 'Add to Home Screen'. It downloads everything for offline use.",
+              desc: "Tap share → 'Add to Home Screen'. Opens like a real app.",
             },
             {
               step: "4",
               title: "Use at the festival",
-              desc: "Open from your home screen. Works with zero signal. Schedule, map, FAQ — all there.",
+              desc: "Ask Festie anything — stages, food, water, tips. Works with zero signal. AI runs right on your phone.",
             },
           ].map((item) => (
             <div key={item.step} className="flex gap-4 items-start">
@@ -163,6 +162,19 @@ export default function GetFestiePage() {
         </div>
       </div>
 
+      {/* Compatibility note */}
+      <div className="px-4 pb-8 max-w-xl mx-auto">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-5 text-center">
+          <p className="text-white/60 text-sm font-bold" style={{ fontFamily: "var(--font-display)" }}>
+            Works on
+          </p>
+          <p className="text-white/40 text-xs mt-1">
+            Chrome on Android, Safari on iOS 18+, Chrome/Edge on desktop.
+            Requires a phone from 2022 or newer for best performance.
+          </p>
+        </div>
+      </div>
+
       {/* Bottom CTA */}
       <div className="px-4 pb-16 text-center max-w-xl mx-auto">
         <div className="bg-gradient-to-r from-[#7c3aed]/20 to-[#ec4899]/20 border border-white/10 rounded-2xl p-8">
@@ -178,17 +190,17 @@ export default function GetFestiePage() {
             className="w-full bg-gradient-to-r from-[#7c3aed] to-[#ec4899] text-white font-bold text-lg px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Get Festie for Coachella
+            Get Festie AI
           </button>
           <p className="text-white/30 text-xs mt-3">
-            Works offline. No subscription. Instant access.
+            Offline AI. No subscription. Instant access.
           </p>
         </div>
       </div>
 
       {/* Footer */}
       <footer className="px-4 py-8 border-t border-white/5 text-center">
-        <p className="text-white/20 text-xs">festie.ai — your pocket festival guide</p>
+        <p className="text-white/20 text-xs">festie.ai — AI that runs on your phone, not in a cloud</p>
       </footer>
     </div>
   );

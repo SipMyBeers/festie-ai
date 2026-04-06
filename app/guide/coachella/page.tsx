@@ -115,6 +115,27 @@ export default function GuidePage() {
         <LiveNow />
       </div>
 
+      {/* Festie AI CTA */}
+      <div className="px-4 mb-6">
+        <Link
+          href="/guide/coachella/ai"
+          className="block bg-gradient-to-r from-festie-purple/20 to-festie-pink/20 border border-festie-purple/30 rounded-xl p-4 active:opacity-80 transition-opacity"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-festie-purple to-festie-pink rounded-full flex items-center justify-center shrink-0 text-xl">
+              🛸
+            </div>
+            <div>
+              <p className="font-display font-bold text-white text-sm">Ask Festie AI</p>
+              <p className="text-white/40 text-xs">On-device AI — works offline, no data leaves your phone</p>
+            </div>
+            <svg className="w-5 h-5 text-white/30 shrink-0 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </Link>
+      </div>
+
       {/* Quick Actions Grid */}
       <div className="px-4 mb-6">
         <h2 className="text-sm font-display font-bold text-white/60 uppercase tracking-wider mb-3">Quick Access</h2>

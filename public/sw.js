@@ -1,4 +1,4 @@
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 const CACHE_NAME = `festie-guide-v${CACHE_VERSION}`;
 
 // Pages to pre-cache on install
@@ -8,6 +8,8 @@ const PRECACHE_URLS = [
   "/guide/coachella/map",
   "/guide/coachella/faq",
   "/guide/coachella/my-schedule",
+  "/guide/coachella/ai",
+  "/ai-worker.js",
   "/manifest.json",
 ];
 
