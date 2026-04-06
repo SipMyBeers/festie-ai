@@ -38,14 +38,15 @@ export function PlanetPageClient({ festival }: { festival: Festival }) {
           )}
         </div>
 
-        <a
-          href={festival.ticketUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-gradient-to-r from-festie-purple to-festie-pink text-white text-sm font-display font-bold px-4 py-2 rounded-full hover:opacity-90 transition-opacity pointer-events-auto"
+        <Link
+          href="/get-festie"
+          className="glass text-white/60 hover:text-white text-xs font-display font-bold px-3 py-1.5 rounded-full transition-colors pointer-events-auto flex items-center gap-1.5"
         >
-          Buy Tickets
-        </a>
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+          </svg>
+          Festie AI
+        </Link>
       </div>
 
       <StagePanel festival={festival} />

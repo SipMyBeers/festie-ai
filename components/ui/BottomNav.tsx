@@ -4,34 +4,72 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/guide/coachella", label: "Home", icon: "M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" },
-  { href: "/guide/coachella/schedule", label: "Schedule", icon: "M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" },
-  { href: "/guide/coachella/map", label: "Map", icon: "M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" },
-  { href: "/guide/coachella/ai", label: "Festie AI", icon: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" },
-  { href: "/guide/coachella/my-schedule", label: "Saved", icon: "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" },
+  {
+    href: "/guide/coachella",
+    label: "Home",
+    icon: "M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z",
+  },
+  {
+    href: "/guide/coachella/schedule",
+    label: "Schedule",
+    icon: "M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z",
+  },
+  {
+    href: "/guide/coachella/map",
+    label: "Map",
+    icon: "M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z",
+  },
+  {
+    href: "/guide/coachella/ai",
+    label: "AI",
+    icon: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z",
+    fillRule: false,
+  },
+  {
+    href: "/guide/coachella/my-schedule",
+    label: "Saved",
+    icon: "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z",
+  },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-festie-dark/95 backdrop-blur-md border-t border-white/10 pb-safe">
-      <div className="flex justify-around py-2">
-        {TABS.map((tab) => {
-          const isActive = pathname === tab.href;
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-4 py-1 ${isActive ? "text-festie-purple" : "text-white/40"}`}
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d={tab.icon} clipRule="evenodd" />
-              </svg>
-              <span className="text-[10px] font-display">{tab.label}</span>
-            </Link>
-          );
-        })}
+    <nav className="fixed bottom-0 left-0 right-0 z-40 pb-safe">
+      {/* Gradient fade above nav */}
+      <div className="h-6 bg-gradient-to-t from-festie-dark to-transparent pointer-events-none" />
+      <div className="bg-festie-dark/95 backdrop-blur-xl border-t border-white/[0.06]">
+        <div className="flex justify-around py-2 max-w-lg mx-auto">
+          {TABS.map((tab) => {
+            const isActive = pathname === tab.href;
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 transition-all ${
+                  isActive ? "text-white" : "text-white/25"
+                }`}
+              >
+                {/* Active glow dot */}
+                {isActive && (
+                  <span
+                    className="absolute -top-2.5 w-5 h-0.5 rounded-full bg-gradient-to-r from-festie-purple to-festie-pink"
+                    style={{ boxShadow: "0 0 12px rgba(124,58,237,0.5)" }}
+                  />
+                )}
+                <svg
+                  className={`w-5 h-5 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(124,58,237,0.4)]" : ""}`}
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path fillRule="evenodd" d={tab.icon} clipRule="evenodd" />
+                </svg>
+                <span className={`text-[10px] font-display ${isActive ? "font-bold" : ""}`}>{tab.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

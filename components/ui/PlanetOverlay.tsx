@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useFestieStore } from "@/lib/store";
 import { getFestivalBySlug } from "@/lib/data/festivals";
+import Link from "next/link";
 
 export function PlanetOverlay() {
   const selectedSlug = useFestieStore((s) => s.selectedPlanetSlug);
@@ -29,8 +30,7 @@ export function PlanetOverlay() {
       >
         <button
           onClick={handleBack}
-          className="text-white/60 hover:text-white text-sm flex items-center gap-2 transition-colors pointer-events-auto"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="text-white/60 hover:text-white text-sm flex items-center gap-2 transition-colors pointer-events-auto font-display"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -39,25 +39,26 @@ export function PlanetOverlay() {
         </button>
 
         <div className="flex items-center gap-3">
-          <h1 className="text-white font-bold text-lg" style={{ fontFamily: "var(--font-display)" }}>
+          <h1 className="text-white font-bold text-lg font-display">
             {festival.name}
           </h1>
           {festival.comingSoon && (
-            <span className="bg-white/10 text-white/60 text-xs px-2 py-1 rounded-full" style={{ fontFamily: "var(--font-display)" }}>
+            <span className="bg-white/10 text-white/60 text-xs px-2 py-1 rounded-full font-display">
               Coming Soon
             </span>
           )}
         </div>
 
-        <a
-          href={festival.ticketUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-gradient-to-r from-[#7c3aed] to-[#ec4899] text-white text-sm font-bold px-4 py-2 rounded-full hover:opacity-90 transition-opacity pointer-events-auto"
-          style={{ fontFamily: "var(--font-display)" }}
+        {/* Subtle Festie AI link — not in your face */}
+        <Link
+          href="/get-festie"
+          className="glass text-white/60 hover:text-white text-xs font-display font-bold px-3 py-1.5 rounded-full transition-colors pointer-events-auto flex items-center gap-1.5"
         >
-          Buy Tickets
-        </a>
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+          </svg>
+          Festie AI
+        </Link>
       </motion.div>
 
       {/* Coming Soon overlay for stub planets */}
@@ -68,7 +69,7 @@ export function PlanetOverlay() {
           transition={{ delay: 1 }}
           className="fixed inset-0 z-20 flex items-center justify-center pointer-events-none"
         >
-          <div className="bg-black/70 backdrop-blur-md border border-white/10 rounded-2xl p-8 max-w-sm mx-4 text-center pointer-events-auto">
+          <div className="glass-warm border border-white/10 rounded-2xl p-8 max-w-sm mx-4 text-center pointer-events-auto">
             <div
               className="text-4xl mb-4"
               style={{
@@ -86,40 +87,33 @@ export function PlanetOverlay() {
                festival.name === "Primavera Sound" ? "🌊" :
                festival.name === "Ultra Music Festival" ? "🌴" : "🪐"}
             </div>
-            <h2
-              className="text-white text-2xl font-bold mb-2"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
+            <h2 className="text-white text-2xl font-bold mb-2 font-display">
               {festival.name}
             </h2>
             <p className="text-white/50 text-sm mb-1">
               {festival.location.city}, {festival.location.country}
             </p>
-            <p className="text-white/40 text-xs mb-4">
+            <p className="text-white/40 text-xs mb-5">
               {festival.dates.start} — {festival.dates.end}
             </p>
-            <div className="bg-gradient-to-r from-[#7c3aed]/20 to-[#ec4899]/20 border border-white/10 rounded-xl p-4 mb-4">
-              <p className="text-white/70 text-sm">
-                Festie is building this planet! Full schedule, stages, and offline guide coming before the festival.
+            <div className="glass rounded-xl p-4 mb-5">
+              <p className="text-white/60 text-sm">
+                Festie is building this planet! Full schedule, stages, and offline AI guide coming before the festival.
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <button
                 onClick={handleBack}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white text-sm font-bold py-3 rounded-full transition-colors"
-                style={{ fontFamily: "var(--font-display)" }}
+                className="w-full bg-gradient-to-r from-festie-purple to-festie-pink text-white text-sm font-bold py-3 rounded-full hover:opacity-90 transition-opacity font-display"
               >
                 Back to Universe
               </button>
-              <a
-                href={festival.ticketUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 bg-gradient-to-r from-[#7c3aed] to-[#ec4899] text-white text-sm font-bold py-3 rounded-full hover:opacity-90 transition-opacity text-center"
-                style={{ fontFamily: "var(--font-display)" }}
+              <Link
+                href="/get-festie"
+                className="block w-full glass text-white/60 hover:text-white text-sm font-bold py-3 rounded-full transition-colors text-center font-display"
               >
-                Get Tickets
-              </a>
+                Get Festie AI for Coachella — $4.99
+              </Link>
             </div>
           </div>
         </motion.div>

@@ -144,34 +144,34 @@ export function Planet({
 
       {isLive && !isSelected && <LiveRings size={size} color={festival.planetColor} />}
 
-      {/* Planet label — hidden when selected */}
-      {!isSelected && <Billboard follow lockX={false} lockY={false} lockZ={false}>
-        <Text
-          position={[0, -size - 0.5, 0]}
-          fontSize={0.35}
-          color="white"
-          anchorX="center"
-          anchorY="top"
-          fillOpacity={festival.comingSoon ? 0.4 : 0.85}
-          outlineWidth={0.02}
-          outlineColor="#000000"
-        >
-          {festival.name}
-        </Text>
-      </Billboard>}
-
-      {festival.comingSoon && !isSelected && (
+      {/* Planet title — large, floating above */}
+      {!isSelected && (
         <Billboard follow lockX={false} lockY={false} lockZ={false}>
           <Text
-            position={[0, size + 0.3, 0]}
-            fontSize={0.2}
+            position={[0, size + 0.8, 0]}
+            fontSize={0.6}
             color="white"
             anchorX="center"
             anchorY="bottom"
-            fillOpacity={0.4}
+            fillOpacity={festival.comingSoon ? 0.35 : 0.95}
+            outlineWidth={0.04}
+            outlineColor="#000000"
+            font="/fonts/SpaceGrotesk-Bold.ttf"
           >
-            Coming Soon
+            {festival.name}
           </Text>
+          {festival.comingSoon && (
+            <Text
+              position={[0, size + 0.5, 0]}
+              fontSize={0.22}
+              color={festival.planetColor}
+              anchorX="center"
+              anchorY="bottom"
+              fillOpacity={0.5}
+            >
+              Coming Soon
+            </Text>
+          )}
         </Billboard>
       )}
 

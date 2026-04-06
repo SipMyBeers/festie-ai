@@ -17,10 +17,93 @@ html {
 
 body {
   overscroll-behavior: none;
+  background: #0a0a0f;
 }
 
 canvas {
   touch-action: none;
+}
+
+/* Noise texture overlay */
+.noise::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+}
+
+/* Glass card */
+.glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-warm {
+  background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(236,72,153,0.04) 50%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(124,58,237,0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Gradient border effect */
+.gradient-border {
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(236,72,153,0.15), rgba(249,115,22,0.1));
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+/* Ambient glow */
+.glow-purple {
+  box-shadow: 0 0 40px rgba(124,58,237,0.15), 0 0 80px rgba(124,58,237,0.05);
+}
+.glow-pink {
+  box-shadow: 0 0 40px rgba(236,72,153,0.15), 0 0 80px rgba(236,72,153,0.05);
+}
+.glow-cyan {
+  box-shadow: 0 0 30px rgba(6,182,212,0.15);
+}
+
+/* Section icon badge */
+.icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Stage color left border accent */
+.stage-card {
+  border-left: 3px solid var(--stage-color, rgba(255,255,255,0.1));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--stage-color) 6%, transparent) 0%, rgba(255,255,255,0.03) 40%);
+}
+
+/* Warm separator */
+.warm-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,58,237,0.2), rgba(236,72,153,0.1), transparent);
 }
 
 /* Mobile touch improvements */
@@ -49,4 +132,20 @@ canvas {
 @keyframes festie-bob {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
 }

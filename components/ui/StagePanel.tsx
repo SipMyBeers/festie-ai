@@ -82,12 +82,10 @@ export function StagePanel({ festival }: StagePanelProps) {
             </div>
 
             <a
-              href={festival.ticketUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/guide/coachella"
               className="block mt-4 w-full text-center bg-gradient-to-r from-festie-purple to-festie-pink text-white text-sm font-display font-bold px-4 py-3 rounded-full hover:opacity-90 transition-opacity"
             >
-              Buy Tickets
+              Open Offline Guide
             </a>
           </div>
         </motion.div>
