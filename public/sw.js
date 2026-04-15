@@ -1,4 +1,4 @@
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 const CACHE_NAME = `festie-guide-v${CACHE_VERSION}`;
 
 // Pages to pre-cache on install
@@ -11,6 +11,7 @@ const PRECACHE_URLS = [
   "/guide/coachella/ai",
   "/ai-worker.js",
   "/manifest.json",
+  "/images/coachella-venue-map-2026.jpg",
 ];
 
 // Patterns to cache on first fetch (fonts, images, JS/CSS chunks)
@@ -19,6 +20,7 @@ const CACHEABLE_PATTERNS = [
   /\/fonts\//,
   /\/icons\//,
   /\/models\//,
+  /\/images\//,
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,14 +1,24 @@
 {
   "name": "Festie.ai — Festival Guide",
   "short_name": "Festie",
-  "description": "Your offline festival companion",
+  "description": "Your offline festival companion — schedules, venue maps, and AI assistant for Coachella 2026. Works without signal.",
   "start_url": "/guide/coachella",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#7c3aed",
   "orientation": "portrait",
+  "categories": ["entertainment", "music", "travel"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Festie.ai Festival Guide"
+    }
   ]
 }

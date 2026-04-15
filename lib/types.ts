@@ -51,5 +51,9 @@ export interface Performance {
   endTime: string;
   genreTags: string[];
   spotifyUrl: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
+  websiteUrl?: string;
   status: PerformanceStatus;
 }

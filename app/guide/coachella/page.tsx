@@ -6,7 +6,7 @@ import { coachellaStages } from "@/lib/data/coachella-lineup";
 import { FESTIVAL_INFO } from "@/lib/sms/knowledge";
 import { ServiceWorkerRegister } from "../sw-register";
 import { BottomNav } from "@/components/ui/BottomNav";
-import { InstallPrompt } from "@/components/ui/InstallPrompt";
+import { InstallBanner } from "@/components/ui/InstallBanner";
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-US", {
@@ -187,6 +187,9 @@ export default function GuidePage() {
         </div>
       </div>
 
+      {/* PWA Install Banner — top priority */}
+      <InstallBanner />
+
       {/* Live / Coming Up */}
       <div className="relative px-4 mb-6">
         <LiveNow />
@@ -239,7 +242,6 @@ export default function GuidePage() {
       </div>
 
       <BottomNav />
-      <InstallPrompt />
     </div>
   );
 }

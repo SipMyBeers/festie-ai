@@ -20,6 +20,7 @@ export const FESTIVAL_INFO = {
     { name: "Yuma Tent", aka: ["yuma"], area: "south" },
     { name: "Sonora Tent", aka: ["sonora"], area: "southwest" },
     { name: "Do LaB", aka: ["dolab", "do lab"], area: "northwest" },
+    { name: "Quasar", aka: ["quasar"], area: "east" },
   ],
 };
 
