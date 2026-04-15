@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Festival } from "@/lib/types";
-import { Timeline } from "@/components/ui/Timeline";
 import { StagePanel } from "@/components/ui/StagePanel";
 import { ExploreToggle } from "@/components/ui/ExploreToggle";
 import { ExploreHint } from "@/components/ui/ExploreHint";
@@ -61,7 +60,6 @@ export function PlanetPageClient({ festival }: { festival: Festival }) {
       </div>
 
       <StagePanel festival={festival} />
-      <Timeline festival={festival} />
       <ExploreToggle />
       <ExploreHint />
       <VirtualJoystick />
