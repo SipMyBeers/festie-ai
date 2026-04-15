@@ -100,9 +100,10 @@ function ChargingLockers({ position }: { position: [number, number, number] }) {
   );
 }
 
-function MerchTent({ position }: { position: [number, number, number] }) {
+function FoodArea({ position, name }: { position: [number, number, number]; name: string }) {
   return (
     <group position={position}>
+      {/* Food stall structure */}
       <mesh position={[0, 0.6, 0]}>
         <boxGeometry args={[1.8, 1.2, 1]} />
         <meshStandardMaterial color="#1a1a2e" roughness={0.7} />
@@ -111,25 +112,60 @@ function MerchTent({ position }: { position: [number, number, number] }) {
         <boxGeometry args={[2, 0.08, 1.3]} />
         <meshStandardMaterial color="#f97316" />
       </mesh>
-      <Label text="MERCH" color="#fb923c" y={1.6} />
+      <Label text={name} color="#fb923c" y={1.6} />
     </group>
   );
 }
 
-function CampingArea({ position }: { position: [number, number, number] }) {
+function EntranceGate({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[2.5, 12]} />
-        <meshStandardMaterial color="#8a7a5a" roughness={0.95} />
-      </mesh>
-      {[[-0.8, 0, -0.4], [0.4, 0, -0.8], [-0.4, 0, 0.7], [1, 0, 0.3]].map((pos, i) => (
-        <mesh key={i} position={pos as [number, number, number]}>
-          <coneGeometry args={[0.25, 0.35, 4]} />
-          <meshStandardMaterial color={["#ef4444", "#3b82f6", "#22c55e", "#f59e0b"][i]} roughness={0.7} />
+      {[-1.3, 1.3].map((x) => (
+        <mesh key={x} position={[x, 1.3, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 2.6, 6]} />
+          <meshStandardMaterial color="#888" metalness={0.5} />
         </mesh>
       ))}
-      <Label text="Camping" color="#fbbf24" />
+      <mesh position={[0, 2.6, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.06, 0.06, 2.8, 6]} />
+        <meshStandardMaterial color="#888" metalness={0.5} />
+      </mesh>
+      <Label text="MAIN ENTRANCE" color="#a78bfa" y={3} />
+    </group>
+  );
+}
+
+function FerrisWheel({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      {/* Center hub */}
+      <mesh position={[0, 4, 0]}>
+        <cylinderGeometry args={[0.2, 0.2, 0.3, 8]} />
+        <meshStandardMaterial color="#888" metalness={0.6} />
+      </mesh>
+      {/* Wheel ring */}
+      <mesh position={[0, 4, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[3.5, 0.08, 4, 24]} />
+        <meshStandardMaterial color="#aaa" metalness={0.5} />
+      </mesh>
+      {/* Spokes */}
+      {Array.from({ length: 8 }, (_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        return (
+          <mesh key={i} position={[0, 4 + Math.sin(angle) * 3.5, Math.cos(angle) * 3.5]}>
+            <sphereGeometry args={[0.2, 6, 6]} />
+            <meshStandardMaterial color={["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#7c3aed", "#06b6d4", "#ff6600"][i]} />
+          </mesh>
+        );
+      })}
+      {/* Support legs */}
+      {[-1.5, 1.5].map((x) => (
+        <mesh key={x} position={[x, 2, 0]} rotation={[0, 0, x > 0 ? -0.15 : 0.15]}>
+          <cylinderGeometry args={[0.06, 0.1, 4.2, 6]} />
+          <meshStandardMaterial color="#777" metalness={0.5} />
+        </mesh>
+      ))}
+      <Label text="Ferris Wheel" color="#fbbf24" y={8} />
     </group>
   );
 }
@@ -152,49 +188,46 @@ function RideshareLot({ position }: { position: [number, number, number] }) {
   );
 }
 
-function EntranceGate({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      {[-1.3, 1.3].map((x) => (
-        <mesh key={x} position={[x, 1.3, 0]}>
-          <cylinderGeometry args={[0.08, 0.08, 2.6, 6]} />
-          <meshStandardMaterial color="#888" metalness={0.5} />
-        </mesh>
-      ))}
-      <mesh position={[0, 2.6, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.06, 0.06, 2.8, 6]} />
-        <meshStandardMaterial color="#888" metalness={0.5} />
-      </mesh>
-      <Label text="ENTRANCE" color="#a78bfa" y={3} />
-    </group>
-  );
-}
-
 export function Amenities() {
   return (
     <group>
-      <WaterStation position={[4, 0, 5]} />
-      <WaterStation position={[15, 0, 5]} />
-      <WaterStation position={[-16, 0, -2]} />
-      <WaterStation position={[-5, 0, 20]} />
+      {/* Positions match official 2026 venue map */}
+      {/* Water stations */}
+      <WaterStation position={[-4, 0, -14]} />     {/* Near Coachella Stage */}
+      <WaterStation position={[10, 0, -4]} />      {/* Between Sonora & Gobi */}
+      <WaterStation position={[-8, 0, 4]} />       {/* Center grounds */}
+      <WaterStation position={[0, 0, 14]} />       {/* Near Sahara */}
+      <WaterStation position={[-16, 0, 2]} />      {/* Near camping */}
 
-      <Restroom position={[3, 0, -12]} type="porta-potty" />
-      <Restroom position={[16, 0, 4]} type="porta-potty" />
-      <Restroom position={[-16, 0, 0]} type="flush" />
-      <Restroom position={[-6, 0, 18]} type="porta-potty" />
+      {/* Restrooms */}
+      <Restroom position={[3, 0, -16]} type="porta-potty" />   {/* Near Coachella Stage */}
+      <Restroom position={[16, 0, -4]} type="porta-potty" />   {/* Near Gobi */}
+      <Restroom position={[10, 0, 10]} type="flush" />         {/* Near Mojave */}
+      <Restroom position={[-8, 0, 14]} type="porta-potty" />   {/* Near Sahara */}
+      <Restroom position={[-16, 0, -2]} type="flush" />        {/* Near Yuma */}
 
-      <ParkingLot position={[0, 0, 25]} name="Parking" />
-      <ParkingLot position={[-12, 0, 22]} name="VIP Parking" />
+      {/* Food areas */}
+      <FoodArea position={[4, 0, -10]} name="Terrace" />           {/* Between stages */}
+      <FoodArea position={[18, 0, -6]} name="Indio Central Market" /> {/* East side */}
+      <FoodArea position={[8, 0, 8]} name="Mojave Food" />         {/* Near Mojave */}
+      <FoodArea position={[-6, 0, 18]} name="Sahara Food" />       {/* Near Sahara */}
+      <FoodArea position={[6, 0, 10]} name="Rose Garden" />        {/* Near Quasar */}
 
-      <RideshareLot position={[12, 0, 24]} />
+      {/* Ferris wheel — iconic Coachella landmark, near entrance */}
+      <FerrisWheel position={[-10, 0, 2]} />
 
-      <MedicalTent position={[2, 0, 16]} />
-      <MedicalTent position={[14, 0, 8]} />
+      {/* Parking */}
+      <ParkingLot position={[-22, 0, 14]} name="Parking" />
+      <ParkingLot position={[-24, 0, 8]} name="VIP Parking" />
+      <RideshareLot position={[-20, 0, 18]} />
 
-      <ChargingLockers position={[0, 0, 18]} />
-      <MerchTent position={[-2, 0, 20]} />
-      <CampingArea position={[-18, 0, 20]} />
-      <EntranceGate position={[0, 0, 28]} />
+      {/* Medical */}
+      <MedicalTent position={[-14, 0, 6]} />
+      <MedicalTent position={[12, 0, -8]} />
+
+      {/* Other */}
+      <ChargingLockers position={[-12, 0, 4]} />
+      <EntranceGate position={[-18, 0, 6]} />
     </group>
   );
 }

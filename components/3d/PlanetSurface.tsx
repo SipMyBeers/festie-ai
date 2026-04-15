@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import * as THREE from "three";
+import { Text } from "@react-three/drei";
 import { Festival, Performance } from "@/lib/types";
 import { Stage } from "./Stage";
 import { Amenities } from "./Amenities";
@@ -39,16 +40,28 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
 
   return (
     <group>
-      {/* Ground */}
+      {/* Ground — larger to accommodate mountains */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[35, 48]} />
+        <circleGeometry args={[55, 64]} />
+        <meshStandardMaterial color="#c4a060" roughness={0.9} metalness={0.02} />
+      </mesh>
+
+      {/* Festival grounds inner area */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <circleGeometry args={[30, 48]} />
         <meshStandardMaterial color={terrainColor} roughness={0.85} metalness={0.05} />
       </mesh>
+
+      {/* Surrounding mountains */}
+      <MountainRanges />
+
+      {/* Compass labels */}
+      <CompassLabels />
 
       {/* Paths connecting areas */}
       <Pathways />
 
-      {/* Landscape — palms and scrub for desert */}
+      {/* Landscape */}
       {festival.terrainType === "desert" && <DesertLandscape />}
 
       {/* Stages */}
@@ -64,13 +77,13 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
       {/* Amenities */}
       <Amenities />
 
-      {/* Crowd — single points buffer */}
+      {/* Crowd */}
       <WanderingCrowd />
 
-      {/* String lights — single points buffer (no individual meshes) */}
+      {/* String lights */}
       <StringLights />
 
-      {/* Lighting — minimal pointLights for performance */}
+      {/* Lighting */}
       <ambientLight intensity={0.5} color="#ffeedd" />
       <directionalLight position={[15, 20, 10]} intensity={0.8} color="#ffddbb" />
       <directionalLight position={[-10, 5, -15]} intensity={0.2} color="#ff8844" />
@@ -78,20 +91,192 @@ export function PlanetSurface({ festival }: PlanetSurfaceProps) {
   );
 }
 
+// ---- MOUNTAIN RANGES ----
+function MountainRanges() {
+  return (
+    <group>
+      {/* San Bernardino Mountains — NORTH (-Z) */}
+      <MountainRange
+        label="San Bernardino Mtns"
+        baseZ={-42}
+        baseX={0}
+        spread={60}
+        count={14}
+        direction="north"
+        color="#6b5a4a"
+        snowColor="#d4cfc8"
+      />
+
+      {/* Santa Rosa Mountains — SOUTH/EAST (+Z, +X) */}
+      <MountainRange
+        label="Santa Rosa Mtns"
+        baseZ={38}
+        baseX={15}
+        spread={50}
+        count={12}
+        direction="southeast"
+        color="#7a6a55"
+        snowColor="#ccc5bb"
+      />
+
+      {/* Little San Bernardino — WEST (-X) */}
+      <MountainRange
+        label="Little San Bernardino"
+        baseZ={0}
+        baseX={-42}
+        spread={55}
+        count={11}
+        direction="west"
+        color="#6d5d4d"
+        snowColor="#d0c9c0"
+      />
+    </group>
+  );
+}
+
+interface MountainRangeProps {
+  label: string;
+  baseX: number;
+  baseZ: number;
+  spread: number;
+  count: number;
+  direction: "north" | "southeast" | "west";
+  color: string;
+  snowColor: string;
+}
+
+function MountainRange({ baseX, baseZ, spread, count, direction, color, snowColor }: MountainRangeProps) {
+  const mountains = useMemo(() => {
+    const peaks: { x: number; z: number; height: number; radius: number }[] = [];
+    for (let i = 0; i < count; i++) {
+      const t = (i / (count - 1)) - 0.5; // -0.5 to 0.5
+      let x: number, z: number;
+
+      if (direction === "north") {
+        x = baseX + t * spread;
+        z = baseZ + (Math.random() - 0.5) * 8;
+      } else if (direction === "southeast") {
+        x = baseX + t * spread * 0.6;
+        z = baseZ + t * spread * 0.4 + (Math.random() - 0.5) * 8;
+      } else {
+        // west
+        x = baseX + (Math.random() - 0.5) * 8;
+        z = baseZ + t * spread;
+      }
+
+      const height = 6 + Math.random() * 8;
+      const radius = 4 + Math.random() * 4;
+      peaks.push({ x, z, height, radius });
+    }
+    return peaks;
+  }, [baseX, baseZ, spread, count, direction]);
+
+  return (
+    <group>
+      {mountains.map((peak, i) => (
+        <group key={i} position={[peak.x, 0, peak.z]}>
+          {/* Mountain body */}
+          <mesh position={[0, peak.height / 2, 0]}>
+            <coneGeometry args={[peak.radius, peak.height, 7, 1]} />
+            <meshStandardMaterial color={color} roughness={0.9} flatShading />
+          </mesh>
+          {/* Snow cap on taller peaks */}
+          {peak.height > 9 && (
+            <mesh position={[0, peak.height * 0.85, 0]}>
+              <coneGeometry args={[peak.radius * 0.3, peak.height * 0.3, 7, 1]} />
+              <meshStandardMaterial color={snowColor} roughness={0.7} flatShading />
+            </mesh>
+          )}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+// ---- COMPASS LABELS ----
+function CompassLabels() {
+  const labelStyle = {
+    fontSize: 1.8,
+    color: "#ffffff",
+    anchorX: "center" as const,
+    anchorY: "middle" as const,
+    font: "/fonts/SpaceGrotesk-Bold.ttf",
+    outlineWidth: 0.06,
+    outlineColor: "#000000",
+  };
+
+  return (
+    <group>
+      {/* N */}
+      <Text position={[0, 8, -48]} {...labelStyle}>
+        N
+      </Text>
+      <Text position={[0, 5.5, -48]} fontSize={0.6} color="#ffffff99" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf">
+        San Bernardino Mtns
+      </Text>
+
+      {/* S */}
+      <Text position={[10, 8, 46]} {...labelStyle}>
+        S
+      </Text>
+      <Text position={[10, 5.5, 46]} fontSize={0.6} color="#ffffff99" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf">
+        Santa Rosa Mtns
+      </Text>
+
+      {/* E */}
+      <Text position={[32, 6, 0]} {...labelStyle} rotation={[0, -Math.PI / 2, 0]}>
+        E
+      </Text>
+
+      {/* W */}
+      <Text position={[-48, 8, 0]} {...labelStyle} rotation={[0, Math.PI / 2, 0]}>
+        W
+      </Text>
+      <Text position={[-48, 5.5, 0]} fontSize={0.6} color="#ffffff99" anchorX="center" anchorY="middle" font="/fonts/SpaceGrotesk-Bold.ttf" rotation={[0, Math.PI / 2, 0]}>
+        Little San Bernardino
+      </Text>
+
+      {/* Compass rose on ground */}
+      <group position={[22, 0.05, -22]} rotation={[-Math.PI / 2, 0, 0]}>
+        {/* N arrow */}
+        <mesh position={[0, 1.2, 0]}>
+          <coneGeometry args={[0.4, 1.2, 3]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+        {/* S arrow */}
+        <mesh position={[0, -1.2, 0]} rotation={[0, 0, Math.PI]}>
+          <coneGeometry args={[0.3, 1, 3]} />
+          <meshBasicMaterial color="#ffffff55" />
+        </mesh>
+        {/* Circle */}
+        <mesh>
+          <ringGeometry args={[1.6, 1.8, 16]} />
+          <meshBasicMaterial color="#ffffff33" side={THREE.DoubleSide} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 // ---- PATHWAYS ----
 function Pathways() {
-  // Paths as simple planes — barely any geometry
+  // Updated to match real venue layout
   const paths = [
-    // Main north-south spine
-    { from: [0, -14], to: [0, 28], width: 1.5 },
-    // East-west connector through middle
-    { from: [-18, 0], to: [18, 0], width: 1.2 },
-    // To Gobi/Mojave
-    { from: [-6, 4], to: [-10, 12], width: 0.8 },
-    { from: [6, 4], to: [10, 12], width: 0.8 },
-    // To parking/entrance
-    { from: [-4, 18], to: [-12, 22], width: 0.8 },
-    { from: [4, 18], to: [12, 24], width: 0.8 },
+    // Main north-south spine (entrance to Coachella Stage)
+    { from: [-18, 6], to: [0, -18], width: 1.5 },
+    // East connector (to Outdoor Theatre)
+    { from: [0, -12], to: [14, -16], width: 1.2 },
+    // To Sonora / Gobi area
+    { from: [2, -6], to: [14, -2], width: 1 },
+    { from: [10, -2], to: [12, 6], width: 0.8 },
+    // To Sahara (south)
+    { from: [-4, 2], to: [-12, 16], width: 1 },
+    // To Yuma (west)
+    { from: [-6, -4], to: [-14, -8], width: 1 },
+    // To Quasar / Do LaB area
+    { from: [-4, 4], to: [-4, 10], width: 0.8 },
+    // Entrance road
+    { from: [-18, 6], to: [-24, 10], width: 1.5 },
   ];
 
   return (
@@ -114,20 +299,18 @@ function Pathways() {
   );
 }
 
-// ---- STRING LIGHTS — as a single points buffer ----
+// ---- STRING LIGHTS ----
 function StringLights() {
   const positions = useMemo(() => {
     const pts: number[] = [];
-    // Outer arc
-    for (let i = 0; i < 30; i++) {
-      const angle = (i / 30) * Math.PI * 1.8 - Math.PI * 0.9;
-      const r = 20 + Math.sin(i * 0.4) * 2;
+    for (let i = 0; i < 40; i++) {
+      const angle = (i / 40) * Math.PI * 1.8 - Math.PI * 0.9;
+      const r = 22 + Math.sin(i * 0.4) * 2;
       pts.push(Math.cos(angle) * r, 2.5 + Math.sin(i * 0.6) * 0.4, Math.sin(angle) * r);
     }
-    // Inner ring
-    for (let i = 0; i < 16; i++) {
-      const angle = (i / 16) * Math.PI * 2;
-      pts.push(Math.cos(angle) * 8, 2 + Math.sin(i * 0.8) * 0.3, Math.sin(angle) * 8 + 5);
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 2;
+      pts.push(Math.cos(angle) * 10, 2 + Math.sin(i * 0.8) * 0.3, Math.sin(angle) * 10);
     }
     return new Float32Array(pts);
   }, []);
@@ -145,11 +328,11 @@ function StringLights() {
 // ---- WANDERING CROWD ----
 function WanderingCrowd() {
   const positions = useMemo(() => {
-    const arr = new Float32Array(80 * 3);
-    for (let i = 0; i < 80; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 28;
+    const arr = new Float32Array(100 * 3);
+    for (let i = 0; i < 100; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 35;
       arr[i * 3 + 1] = 0.15 + Math.random() * 0.25;
-      arr[i * 3 + 2] = (Math.random() - 0.2) * 25;
+      arr[i * 3 + 2] = (Math.random() - 0.3) * 35;
     }
     return arr;
   }, []);
@@ -167,21 +350,19 @@ function WanderingCrowd() {
 // ---- DESERT LANDSCAPE ----
 function DesertLandscape() {
   const palms = useMemo(
-    () => Array.from({ length: 12 }, () => ({
-      x: (Math.random() - 0.5) * 50,
-      z: -12 + (Math.random() - 0.5) * 40,
+    () => Array.from({ length: 18 }, () => ({
+      x: (Math.random() - 0.5) * 60,
+      z: (Math.random() - 0.5) * 60,
       scale: 0.6 + Math.random() * 0.5,
     })).filter((p) => {
-      // Keep palms away from the festival center
       const dist = Math.sqrt(p.x * p.x + p.z * p.z);
-      return dist > 15;
+      return dist > 20 && dist < 40;
     }),
     []
   );
 
   return (
     <group>
-      {/* Palm trees — simple: cylinder trunk + 4 plane fronds */}
       {palms.map((p, i) => (
         <group key={i} position={[p.x, 0, p.z]} scale={p.scale}>
           <mesh position={[0, 1.8, 0]}>
@@ -200,16 +381,16 @@ function DesertLandscape() {
         </group>
       ))}
 
-      {/* Desert scrub — single points buffer */}
+      {/* Desert scrub */}
       <points>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            args={[new Float32Array(Array.from({ length: 40 * 3 }, (_, i) => {
+            args={[new Float32Array(Array.from({ length: 60 * 3 }, (_, i) => {
               const idx = Math.floor(i / 3);
               const axis = i % 3;
-              const angle = (idx / 40) * Math.PI * 2 + Math.random() * 0.5;
-              const dist = 18 + Math.random() * 12;
+              const angle = (idx / 60) * Math.PI * 2 + Math.random() * 0.5;
+              const dist = 22 + Math.random() * 15;
               if (axis === 0) return Math.cos(angle) * dist;
               if (axis === 1) return 0.1;
               return Math.sin(angle) * dist;

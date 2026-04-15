@@ -6,7 +6,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "mainstage",
     name: "Coachella Stage",
-    position: { x: 0, y: 0, z: -14 },
+    position: { x: 0, y: 0, z: -18 },
     color: "#f97316",
     schedule: [
       {
@@ -226,7 +226,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "outdoor",
     name: "Outdoor Theatre",
-    position: { x: -14, y: 0, z: -4 },
+    position: { x: 14, y: 0, z: -16 },
     color: "#06b6d4",
     schedule: [
       {
@@ -464,7 +464,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "sahara",
     name: "Sahara",
-    position: { x: 18, y: 0, z: 0 },
+    position: { x: -12, y: 0, z: 16 },
     color: "#7c3aed",
     schedule: [
       {
@@ -780,7 +780,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "gobi",
     name: "Gobi",
-    position: { x: 10, y: 0, z: 12 },
+    position: { x: 14, y: 0, z: -2 },
     color: "#ec4899",
     schedule: [
       {
@@ -1083,7 +1083,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "mojave",
     name: "Mojave",
-    position: { x: -10, y: 0, z: 12 },
+    position: { x: 12, y: 0, z: 6 },
     color: "#eab308",
     schedule: [
       {
@@ -1355,7 +1355,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "sonora",
     name: "Sonora",
-    position: { x: -16, y: 0, z: 8 },
+    position: { x: 8, y: 0, z: -6 },
     color: "#22c55e",
     schedule: [
       {
@@ -1695,7 +1695,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "yuma",
     name: "Yuma",
-    position: { x: 14, y: 0, z: -10 },
+    position: { x: -14, y: 0, z: -8 },
     color: "#a855f7",
     schedule: [
       {
@@ -2055,7 +2055,7 @@ export const coachellaStages: Stage[] = [
   {
     id: "quasar",
     name: "Quasar",
-    position: { x: 16, y: 0, z: 10 },
+    position: { x: -4, y: 0, z: 10 },
     color: "#14b8a6",
     schedule: [
       {
